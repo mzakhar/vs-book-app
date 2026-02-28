@@ -1,0 +1,20 @@
+export type BookStatus = 'unread' | 'reading' | 'read';
+
+export interface Book {
+  id: number;
+  title: string;
+  author?: string;
+  genre?: string;
+  status: BookStatus;
+  rating?: number;
+  cover_url?: string;
+  created_at: string;
+}
+
+export interface Note {
+  id: number;
+  book_id: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}

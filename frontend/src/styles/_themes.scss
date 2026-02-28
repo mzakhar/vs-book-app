@@ -1,0 +1,106 @@
+// ── Theme: Dark (default) ──────────────────────────────────────────────────
+:root,
+[data-theme="dark"] {
+  --bg-base:     #080a0c;
+  --bg-surface:  #0f1318;
+  --bg-card:     #161c24;
+  --bg-elevated: #1e2630;
+  --bg-hover:    #252f3a;
+
+  --border:       #222c38;
+  --border-light: #2e3d4e;
+  --btn-secondary-hover-border: #3d5266;
+
+  --accent:        #4a7fb5;
+  --accent-hover:  #5c94cc;
+  --accent-muted:  rgba(74, 127, 181, 0.15);
+  --accent-subtle: rgba(74, 127, 181, 0.05);
+  --accent-focus:  rgba(74, 127, 181, 0.2);
+
+  --text-1: #e8edf2;
+  --text-2: #8a9bb0;
+  --text-3: #5a6a7e;
+  --text-4: #364452;
+
+  --success:    #4caf7a;
+  --success-bg: rgba(76, 175, 122, 0.1);
+  --danger:     #e05555;
+  --danger-bg:  rgba(224, 85, 85, 0.1);
+  --danger-border:   rgba(224, 85, 85, 0.2);
+  --danger-hover-bg: rgba(224, 85, 85, 0.18);
+
+  --toast-success-bg:     #0e1f16;
+  --toast-error-bg:       #1f0e0e;
+  --toast-info-bg:        #0e131f;
+  --toast-success-border: rgba(76, 175, 122, 0.3);
+  --toast-error-border:   rgba(224, 85, 85, 0.3);
+  --toast-info-border:    rgba(74, 127, 181, 0.3);
+
+  --modal-overlay: rgba(0, 0, 0, 0.75);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6a7e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #8a9bb0;
+  --status-unread-bg:    rgba(138, 155, 176, 0.1);
+  --status-unread-border: rgba(138, 155, 176, 0.2);
+  --status-reading-color: #4a7fb5;
+  --status-reading-bg:    rgba(74, 127, 181, 0.12);
+  --status-reading-border: rgba(74, 127, 181, 0.3);
+  --status-read-color: #4caf7a;
+  --status-read-bg:    rgba(76, 175, 122, 0.1);
+  --status-read-border: rgba(76, 175, 122, 0.25);
+
+  --star-color: #d4a843;
+}
+
+// ── Theme: Light ───────────────────────────────────────────────────────────
+[data-theme="light"] {
+  --bg-base:     #f0f4f8;
+  --bg-surface:  #ffffff;
+  --bg-card:     #f8fafc;
+  --bg-elevated: #edf2f7;
+  --bg-hover:    #e2eaf2;
+
+  --border:       #d0dce8;
+  --border-light: #b8cad8;
+  --btn-secondary-hover-border: #8099b0;
+
+  --accent:        #2563eb;
+  --accent-hover:  #1d4ed8;
+  --accent-muted:  rgba(37, 99, 235, 0.1);
+  --accent-subtle: rgba(37, 99, 235, 0.05);
+  --accent-focus:  rgba(37, 99, 235, 0.15);
+
+  --text-1: #0f1923;
+  --text-2: #334a5e;
+  --text-3: #6a8099;
+  --text-4: #a0b4c4;
+
+  --success:    #2e7d52;
+  --success-bg: rgba(46, 125, 82, 0.1);
+  --danger:     #c0392b;
+  --danger-bg:  rgba(192, 57, 43, 0.08);
+  --danger-border:   rgba(192, 57, 43, 0.25);
+  --danger-hover-bg: rgba(192, 57, 43, 0.15);
+
+  --toast-success-bg:     #e8f5ee;
+  --toast-error-bg:       #fce8e8;
+  --toast-info-bg:        #e8f0fc;
+  --toast-success-border: rgba(46, 125, 82, 0.3);
+  --toast-error-border:   rgba(192, 57, 43, 0.3);
+  --toast-info-border:    rgba(37, 99, 235, 0.3);
+
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a8099' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #6a8099;
+  --status-unread-bg:    rgba(106, 128, 153, 0.08);
+  --status-unread-border: rgba(106, 128, 153, 0.2);
+  --status-reading-color: #2563eb;
+  --status-reading-bg:    rgba(37, 99, 235, 0.08);
+  --status-reading-border: rgba(37, 99, 235, 0.25);
+  --status-read-color: #2e7d52;
+  --status-read-bg:    rgba(46, 125, 82, 0.08);
+  --status-read-border: rgba(46, 125, 82, 0.25);
+
+  --star-color: #c07a10;
+}

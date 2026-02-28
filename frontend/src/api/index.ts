@@ -1,0 +1,26 @@
+import axios from 'axios';
+import type { Book, Note } from '../types';
+
+const api = axios.create({ baseURL: '/api' });
+
+// Books
+export const getBooks = (q?: string) =>
+  api.get<Book[]>('/books', { params: q ? { q } : {} }).then(r => r.data);
+export const getBook = (id: number) =>
+  api.get<Book>(`/books/${id}`).then(r => r.data);
+export const createBook = (data: Partial<Book>) =>
+  api.post<Book>('/books', data).then(r => r.data);
+export const updateBook = (id: number, data: Partial<Book>) =>
+  api.put<Book>(`/books/${id}`, data).then(r => r.data);
+export const deleteBook = (id: number) =>
+  api.delete(`/books/${id}`);
+
+// Notes
+export const getNotes = (bookId: number) =>
+  api.get<Note[]>(`/notes/${bookId}`).then(r => r.data);
+export const createNote = (bookId: number, content: string) =>
+  api.post<Note>(`/notes/${bookId}`, { content }).then(r => r.data);
+export const updateNote = (noteId: number, content: string) =>
+  api.put<Note>(`/notes/${noteId}`, { content }).then(r => r.data);
+export const deleteNote = (noteId: number) =>
+  api.delete(`/notes/${noteId}`);
