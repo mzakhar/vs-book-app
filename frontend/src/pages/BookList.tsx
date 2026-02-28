@@ -51,7 +51,7 @@ export default function BookList() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState<SortKey>('date');
+  const [sort, setSort] = useState<SortKey>('author');
   const [view, setView] = useState<ViewMode>('list');
   const [showAdd, setShowAdd] = useState(false);
 
