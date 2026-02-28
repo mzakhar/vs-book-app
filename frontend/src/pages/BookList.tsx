@@ -8,6 +8,7 @@ import BookForm from '../components/BookForm';
 import { useToast } from '../components/Toast';
 
 type SortKey = 'date' | 'title' | 'author' | 'series' | 'genre';
+type ViewMode = 'list' | 'gallery';
 
 function sortBooks(books: Book[], sort: SortKey): Book[] {
   if (sort === 'date') return books;
@@ -51,6 +52,7 @@ export default function BookList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('date');
+  const [view, setView] = useState<ViewMode>('list');
   const [showAdd, setShowAdd] = useState(false);
 
   const load = useCallback(async (q?: string) => {
@@ -92,6 +94,16 @@ export default function BookList() {
           <p className="page-subtitle">{books.length} book{books.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="page-header__actions">
+          <div className="view-toggle">
+            <button
+              className={`view-toggle__btn${view === 'list' ? ' view-toggle__btn--active' : ''}`}
+              onClick={() => setView('list')}
+            >☰ List</button>
+            <button
+              className={`view-toggle__btn${view === 'gallery' ? ' view-toggle__btn--active' : ''}`}
+              onClick={() => setView('gallery')}
+            >⊞ Gallery</button>
+          </div>
           <button className="btn btn--primary" onClick={() => setShowAdd(true)}>
             <Plus size={14} /> Add Book
           </button>
@@ -139,6 +151,29 @@ export default function BookList() {
               <Plus size={14} /> Add Book
             </button>
           )}
+        </div>
+      ) : view === 'gallery' ? (
+        <div className="book-gallery">
+          {sortBooks(books, sort).map(book => (
+            <Link key={book.id} to={`/books/${book.id}`} className="book-gallery__item">
+              <div className="book-gallery__cover-wrap">
+                {book.cover_url ? (
+                  <img
+                    src={book.cover_url}
+                    alt={book.title}
+                    className="book-gallery__cover"
+                    onError={e => { (e.currentTarget as HTMLImageElement).src = '/placeholder-cover.png'; }}
+                  />
+                ) : (
+                  <div className="book-gallery__placeholder">
+                    <BookOpen size={28} />
+                    <span>{book.title}</span>
+                  </div>
+                )}
+              </div>
+              <div className="book-gallery__title">{book.title}</div>
+            </Link>
+          ))}
         </div>
       ) : (
         <div className="book-grid">
