@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { ImageIcon, X } from 'lucide-react';
 import { createBook, updateBook } from '../api';
 import type { Book, BookStatus } from '../types';
 
@@ -7,6 +8,24 @@ const STATUSES: { value: BookStatus; label: string }[] = [
   { value: 'reading', label: 'Reading' },
   { value: 'read', label: 'Read' },
 ];
+
+function compressImage(file: File): Promise<string> {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX_W = 300, MAX_H = 420;
+      const scale = Math.min(MAX_W / img.naturalWidth, MAX_H / img.naturalHeight, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.naturalWidth  * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = url;
+  });
+}
 
 interface Props {
   existing?: Book;
@@ -27,6 +46,21 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
   });
 
   const set = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
+
+  const handlePaste = async (e: React.ClipboardEvent<HTMLFormElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) return;
+        const dataUrl = await compressImage(file);
+        set('cover_url', dataUrl);
+        return;
+      }
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -52,8 +86,10 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     }
   };
 
+  const hasCover = form.cover_url.trim() !== '';
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} onPaste={handlePaste}>
       {error && <p className="form-error">{error}</p>}
 
       <div className="form-grid">
@@ -101,14 +137,43 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
             ))}
           </select>
         </div>
+
+        {/* Cover picker */}
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-          <label className="form-label">Cover URL</label>
-          <input
-            className="form-input"
-            value={form.cover_url}
-            onChange={e => set('cover_url', e.target.value)}
-            placeholder="https://..."
-          />
+          <label className="form-label">Cover Image</label>
+          <div className="cover-picker">
+            <div className="cover-picker__zone">
+              {hasCover ? (
+                <>
+                  <img
+                    className="cover-picker__img"
+                    src={form.cover_url}
+                    alt="Cover preview"
+                    onError={() => set('cover_url', '')}
+                  />
+                  <button
+                    type="button"
+                    className="cover-picker__clear"
+                    onClick={() => set('cover_url', '')}
+                    title="Remove cover"
+                  >
+                    <X size={12} />
+                  </button>
+                </>
+              ) : (
+                <div className="cover-picker__placeholder">
+                  <ImageIcon size={28} />
+                  <span>Ctrl+V to paste image</span>
+                </div>
+              )}
+            </div>
+            <input
+              className="form-input cover-picker__url"
+              value={hasCover && form.cover_url.startsWith('data:') ? '' : form.cover_url}
+              onChange={e => set('cover_url', e.target.value)}
+              placeholder="…or paste / type an image URL"
+            />
+          </div>
         </div>
       </div>
 
