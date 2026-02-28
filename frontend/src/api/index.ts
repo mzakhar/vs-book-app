@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Book, Note } from '../types';
+import type { Book, BookStats, Note } from '../types';
 
 const api = axios.create({ baseURL: '/api' });
 
@@ -14,6 +14,8 @@ export const updateBook = (id: number, data: Partial<Book>) =>
   api.put<Book>(`/books/${id}`, data).then(r => r.data);
 export const deleteBook = (id: number) =>
   api.delete(`/books/${id}`);
+export const getStats = () =>
+  api.get<BookStats>('/books/stats').then(r => r.data);
 
 // Notes
 export const getNotes = (bookId: number) =>

@@ -54,7 +54,7 @@ export default function BookDetail() {
       setNotes(n);
     } catch {
       toast('error', 'Failed to load book.');
-      navigate('/');
+      navigate('/library');
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ export default function BookDetail() {
     if (!confirm(`Delete "${book?.title}"? All notes will be removed.`)) return;
     try {
       await deleteBook(bookId);
-      navigate('/');
+      navigate('/library');
     } catch {
       toast('error', 'Failed to delete book.');
     }
@@ -100,7 +100,7 @@ export default function BookDetail() {
 
   return (
     <div className="page">
-      <Link to="/" className="btn btn--ghost btn--sm" style={{ marginBottom: '16px' }}>
+      <Link to="/library" className="btn btn--ghost btn--sm" style={{ marginBottom: '16px' }}>
         <ArrowLeft size={14} /> Back to Library
       </Link>
 

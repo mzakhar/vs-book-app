@@ -454,6 +454,182 @@
   }
 }
 
+// ── Dashboard Stats ───────────────────────────────────────────────────────
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: $space-4;
+  margin-bottom: $space-6;
+}
+
+.stat-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $space-4 $space-5;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  transition: border-color $transition, box-shadow $transition;
+
+  &:hover {
+    border-color: $border-light;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $text-3;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-1;
+    line-height: 1.1;
+  }
+
+  &__sub {
+    font-size: 0.78rem;
+    color: $text-3;
+  }
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-4;
+  margin-bottom: $space-6;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $space-5;
+
+  &__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $text-2;
+    margin-bottom: $space-4;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-bottom: $space-2;
+
+  &__label {
+    font-size: 0.8rem;
+    color: $text-2;
+    width: 90px;
+    @include truncate;
+    flex-shrink: 0;
+  }
+
+  &__track {
+    flex: 1;
+    height: 8px;
+    background: $bg-elevated;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 4px;
+    background: $accent;
+    transition: width 0.4s ease;
+  }
+
+  &__count {
+    font-size: 0.78rem;
+    color: $text-3;
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+}
+
+.rating-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: $space-3;
+  height: 100px;
+
+  &__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-1;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  &__bar {
+    width: 100%;
+    background: $accent;
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    transition: height 0.4s ease;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: $text-3;
+  }
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color $transition, background $transition;
+
+  &:hover { border-color: $border-light; background: $bg-elevated; }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-1;
+    @include truncate;
+  }
+
+  &__author {
+    font-size: 0.8rem;
+    color: $text-3;
+    @include truncate;
+  }
+}
+
 // ── Book Detail Cover ─────────────────────────────────────────────────────
 .book-detail__cover {
   width: 100px;

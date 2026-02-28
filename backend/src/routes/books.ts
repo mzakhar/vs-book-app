@@ -35,6 +35,42 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   res.status(201).json(await db.get(`SELECT * FROM books WHERE id = ?`, result.lastID));
 }));
 
+router.get('/stats', asyncHandler(async (_req: Request, res: Response) => {
+  const db = await getDb();
+  const [counters, notesCount, byGenre, byRating, recent] = await Promise.all([
+    db.get(`
+      SELECT
+        COUNT(*) as total_books,
+        SUM(CASE WHEN status='unread'  THEN 1 ELSE 0 END) as unread,
+        SUM(CASE WHEN status='reading' THEN 1 ELSE 0 END) as reading,
+        SUM(CASE WHEN status='read'    THEN 1 ELSE 0 END) as read,
+        ROUND(AVG(CASE WHEN rating IS NOT NULL THEN rating END), 1) as avg_rating
+      FROM books
+    `),
+    db.get(`SELECT COUNT(*) as count FROM notes`),
+    db.all(`
+      SELECT COALESCE(NULLIF(TRIM(genre),''),'Untagged') as genre, COUNT(*) as count
+      FROM books GROUP BY genre ORDER BY count DESC LIMIT 10
+    `),
+    db.all(`
+      SELECT rating, COUNT(*) as count FROM books
+      WHERE rating IS NOT NULL GROUP BY rating ORDER BY rating
+    `),
+    db.all(`SELECT * FROM books ORDER BY created_at DESC LIMIT 5`),
+  ]);
+  res.json({
+    total_books: counters.total_books ?? 0,
+    unread:      counters.unread ?? 0,
+    reading:     counters.reading ?? 0,
+    read:        counters.read ?? 0,
+    avg_rating:  counters.avg_rating ?? null,
+    total_notes: notesCount.count ?? 0,
+    by_genre:    byGenre,
+    by_rating:   byRating,
+    recent,
+  });
+}));
+
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
   const book = await db.get(`SELECT * FROM books WHERE id = ?`, req.params.id);
