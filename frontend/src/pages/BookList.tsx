@@ -1,11 +1,28 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Trash2, BookOpen, Star } from 'lucide-react';
+import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown } from 'lucide-react';
 import { getBooks, deleteBook } from '../api';
 import type { Book, BookStatus } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
 import { useToast } from '../components/Toast';
+
+type SortKey = 'date' | 'title' | 'author' | 'series' | 'genre';
+
+function sortBooks(books: Book[], sort: SortKey): Book[] {
+  if (sort === 'date') return books;
+  return [...books].sort((a, b) => {
+    let av: string, bv: string;
+    if (sort === 'title')  { av = a.title;             bv = b.title; }
+    else if (sort === 'author') { av = a.author ?? '';      bv = b.author ?? ''; }
+    else if (sort === 'series') { av = a.series_name ?? ''; bv = b.series_name ?? ''; }
+    else                        { av = a.genre ?? '';        bv = b.genre ?? ''; }
+    if (!av && !bv) return 0;
+    if (!av) return 1;
+    if (!bv) return -1;
+    return av.localeCompare(bv);
+  });
+}
 
 const STATUS_LABEL: Record<BookStatus, string> = {
   unread: 'Unread',
@@ -33,6 +50,7 @@ export default function BookList() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortKey>('date');
   const [showAdd, setShowAdd] = useState(false);
 
   const load = useCallback(async (q?: string) => {
@@ -80,14 +98,30 @@ export default function BookList() {
         </div>
       </div>
 
-      <div className="search-bar">
-        <Search />
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by title or author…"
-        />
+      <div className="library-controls">
+        <div className="search-bar">
+          <Search />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by title or author…"
+          />
+        </div>
+        <div className="sort-control">
+          <ArrowUpDown size={14} className="sort-control__icon" />
+          <select
+            className="form-select sort-control__select"
+            value={sort}
+            onChange={e => setSort(e.target.value as SortKey)}
+          >
+            <option value="date">Date Added</option>
+            <option value="title">Title A–Z</option>
+            <option value="author">Author A–Z</option>
+            <option value="series">Series A–Z</option>
+            <option value="genre">Genre A–Z</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
@@ -108,7 +142,7 @@ export default function BookList() {
         </div>
       ) : (
         <div className="book-grid">
-          {books.map(book => (
+          {sortBooks(books, sort).map(book => (
             <Link key={book.id} to={`/books/${book.id}`} className="book-card">
               <div className="book-card__cover">
                 {book.cover_url ? (

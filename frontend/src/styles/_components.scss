@@ -117,6 +117,41 @@
   margin-top: $space-1;
 }
 
+// ── Library Controls (search + sort row) ──────────────────────────────────
+.library-controls {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-bottom: $space-5;
+
+  .search-bar {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.sort-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  &__icon {
+    position: absolute;
+    left: $space-3;
+    color: $text-3;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &__select {
+    width: auto;
+    padding-left: $space-8;
+    padding-right: $space-8 + $space-2;
+  }
+}
+
 // ── Search ────────────────────────────────────────────────────────────────
 .search-bar {
   position: relative;
