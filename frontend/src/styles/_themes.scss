@@ -105,6 +105,59 @@
   --star-color: #d4a843;
 }
 
+// ── Theme: Rainbow ─────────────────────────────────────────────────────────
+[data-theme="rainbow"] {
+  --bg-base:     #07050c;
+  --bg-surface:  #0e0816;
+  --bg-card:     #140c20;
+  --bg-elevated: #1c122c;
+  --bg-hover:    #251838;
+
+  --border:       #2e1645;
+  --border-light: #4e2870;
+  --btn-secondary-hover-border: #7e40a8;
+
+  --accent:        #ff6eb4;
+  --accent-hover:  #ff90c8;
+  --accent-muted:  rgba(255, 110, 180, 0.15);
+  --accent-subtle: rgba(255, 110, 180, 0.05);
+  --accent-focus:  rgba(255, 110, 180, 0.22);
+
+  --text-1: #fff0fa;
+  --text-2: #cc90bb;
+  --text-3: #7a4870;
+  --text-4: #3e1e40;
+
+  --success:    #44ffaa;
+  --success-bg: rgba(68, 255, 170, 0.1);
+  --danger:     #ff4466;
+  --danger-bg:  rgba(255, 68, 102, 0.1);
+  --danger-border:   rgba(255, 68, 102, 0.25);
+  --danger-hover-bg: rgba(255, 68, 102, 0.18);
+
+  --toast-success-bg:     #091a10;
+  --toast-error-bg:       #1a090e;
+  --toast-info-bg:        #18081e;
+  --toast-success-border: rgba(68, 255, 170, 0.3);
+  --toast-error-border:   rgba(255, 68, 102, 0.3);
+  --toast-info-border:    rgba(255, 110, 180, 0.35);
+
+  --modal-overlay: rgba(0, 0, 0, 0.82);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a4870' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #ffaa44;
+  --status-unread-bg:    rgba(255, 170, 68, 0.12);
+  --status-unread-border: rgba(255, 170, 68, 0.3);
+  --status-reading-color: #44ccff;
+  --status-reading-bg:    rgba(68, 204, 255, 0.12);
+  --status-reading-border: rgba(68, 204, 255, 0.3);
+  --status-read-color: #44ffaa;
+  --status-read-bg:    rgba(68, 255, 170, 0.1);
+  --status-read-border: rgba(68, 255, 170, 0.28);
+
+  --star-color: #ffdd44;
+}
+
 // ── Theme: Light ───────────────────────────────────────────────────────────
 [data-theme="light"] {
   --bg-base:     #f0f4f8;

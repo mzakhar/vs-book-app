@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette } from 'lucide-react';
 
-type Theme = 'dark' | 'light' | 'purple';
+type Theme = 'dark' | 'light' | 'purple' | 'rainbow';
 
 export default function Layout() {
   const [theme, setTheme] = useState<Theme>(
@@ -66,6 +66,13 @@ export default function Layout() {
             title="Purple theme"
           >
             <Sparkles size={16} />
+          </button>
+          <button
+            className={`btn btn--icon btn--ghost${theme === 'rainbow' ? ' nav-item--active' : ''}`}
+            onClick={() => setTheme('rainbow')}
+            title="Rainbow theme"
+          >
+            <Palette size={16} />
           </button>
         </div>
       </aside>
