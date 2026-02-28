@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen } from 'lucide-react';
-import { getBook, getNotes, deleteBook, deleteNote } from '../api';
-import type { Book, Note } from '../types';
+import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen, List } from 'lucide-react';
+import { getBook, getNotes, deleteBook, deleteNote, getSeriesById } from '../api';
+import type { Book, Note, Series } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
 import NoteForm from '../components/NoteForm';
@@ -43,6 +43,7 @@ export default function BookDetail() {
 
   const [book, setBook] = useState<Book | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [series, setSeries] = useState<Series | null>(null);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<'edit' | 'add-note' | 'edit-note' | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -61,6 +62,15 @@ export default function BookDetail() {
   }, [bookId, navigate, toast]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
+
+  // Load series when book has series_id
+  useEffect(() => {
+    if (book?.series_id) {
+      getSeriesById(book.series_id).then(setSeries).catch(() => setSeries(null));
+    } else {
+      setSeries(null);
+    }
+  }, [book?.series_id]);
 
   const handleDeleteBook = async () => {
     if (!confirm(`Delete "${book?.title}"? All notes will be removed.`)) return;
@@ -98,6 +108,13 @@ export default function BookDetail() {
 
   if (!book) return null;
 
+  // Find next to read in series
+  const nextToRead = series ? series.books.find(sb =>
+    sb.status !== 'read' &&
+    sb.id !== book.id &&
+    (book.series_position == null || (sb.series_position != null && sb.series_position > book.series_position))
+  ) : null;
+
   return (
     <div className="page">
       <Link to="/library" className="btn btn--ghost btn--sm" style={{ marginBottom: '16px' }}>
@@ -105,7 +122,7 @@ export default function BookDetail() {
       </Link>
 
       {/* Book header */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '32px', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '24px', alignItems: 'flex-start' }}>
         {book.cover_url && (
           <img
             src={book.cover_url}
@@ -136,6 +153,7 @@ export default function BookDetail() {
               {STATUS_LABEL[book.status]}
             </span>
             {book.genre && <span className="tag">{book.genre}</span>}
+            {book.page_count && <span className="tag">{book.page_count} pages</span>}
             <StarRating rating={book.rating} />
           </div>
 
@@ -144,6 +162,35 @@ export default function BookDetail() {
           </p>
         </div>
       </div>
+
+      {/* Series card */}
+      {book.series_name && (
+        <div className="book-detail__series" style={{ marginBottom: '20px' }}>
+          <div className="book-detail__series-header">
+            <List size={14} />
+            <Link to="/series" className="book-detail__series-name">{book.series_name}</Link>
+            {book.series_position != null && (
+              <span className="tag">Book {book.series_position}</span>
+            )}
+          </div>
+          {nextToRead && (
+            <p className="book-detail__series-next">
+              Next to read:{' '}
+              <Link to={`/books/${nextToRead.id}`} style={{ color: 'var(--accent)', textDecoration: 'none' }}>
+                {nextToRead.title}
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Description */}
+      {book.description && (
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-2)', lineHeight: 1.7 }}>{book.description}</p>
+        </div>
+      )}
 
       {/* Notes section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

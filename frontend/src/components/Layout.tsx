@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked } from 'lucide-react';
 
 type Theme = 'dark' | 'light' | 'purple';
 
@@ -36,6 +36,13 @@ export default function Layout() {
           >
             <BookOpen />
             My Library
+          </NavLink>
+          <NavLink
+            to="/series"
+            className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+          >
+            <BookMarked />
+            Series
           </NavLink>
         </nav>
         <div className="sidebar__theme">

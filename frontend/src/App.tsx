@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import BookList from './pages/BookList';
 import BookDetail from './pages/BookDetail';
+import SeriesPage from './pages/SeriesPage';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="library" element={<BookList />} />
             <Route path="books/:id" element={<BookDetail />} />
+            <Route path="series" element={<SeriesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

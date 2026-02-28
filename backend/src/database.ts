@@ -16,6 +16,13 @@ export async function getDb(): Promise<Database> {
   await _db.exec('PRAGMA foreign_keys = ON');
 
   await _db.exec(`
+    CREATE TABLE IF NOT EXISTS series (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL UNIQUE,
+      total_books INTEGER,
+      created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS books (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       title      TEXT NOT NULL,
@@ -35,6 +42,17 @@ export async function getDb(): Promise<Database> {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // Migrations — ignore "duplicate column name" errors
+  const migrations = [
+    `ALTER TABLE books ADD COLUMN series_id       INTEGER REFERENCES series(id) ON DELETE SET NULL`,
+    `ALTER TABLE books ADD COLUMN series_position REAL`,
+    `ALTER TABLE books ADD COLUMN page_count      INTEGER`,
+    `ALTER TABLE books ADD COLUMN description     TEXT`,
+  ];
+  for (const sql of migrations) {
+    try { await _db.run(sql); } catch { /* column already exists */ }
+  }
 
   return _db;
 }

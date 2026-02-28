@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import booksRouter from './routes/books';
 import notesRouter from './routes/notes';
+import seriesRouter from './routes/series';
 import { getDb } from './database';
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/books', booksRouter);
 app.use('/api/notes', notesRouter);
+app.use('/api/series', seriesRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
