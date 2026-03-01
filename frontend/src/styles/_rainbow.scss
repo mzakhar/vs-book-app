@@ -33,6 +33,37 @@
   60%       { opacity: 0.7; transform: scale(1.0) translateY(-6px) rotate(90deg); }
 }
 
+@keyframes sparkle-drift {
+  0%   { opacity: 0;   transform: scale(0.3) translateY(0px)   rotate(0deg);   }
+  30%  { opacity: 1;   transform: scale(1.3) translateY(-8px)  rotate(45deg);  }
+  60%  { opacity: 0.6; transform: scale(1.0) translateY(-14px) rotate(90deg);  }
+  100% { opacity: 0;   transform: scale(0.2) translateY(-20px) rotate(135deg); }
+}
+
+// ── Full-screen sparkle overlay ────────────────────────────────────────────
+.rainbow-sparkles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+
+  span {
+    position: absolute;
+    display: block;
+    line-height: 1;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+    animation-duration: var(--sp-dur, 2s);
+    animation-delay: var(--sp-delay, 0s);
+
+    &.sp-twinkle { animation-name: sparkle-twinkle; }
+    &.sp-float   { animation-name: sparkle-float;   }
+    &.sp-drift   { animation-name: sparkle-drift;   }
+  }
+}
+
 // ── Rainbow Theme Overrides ────────────────────────────────────────────────
 
 [data-theme="rainbow"] {

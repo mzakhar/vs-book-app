@@ -4,6 +4,54 @@ import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette } f
 
 type Theme = 'dark' | 'light' | 'purple' | 'rainbow';
 
+const SPARKLES = [
+  { id:  1, x:  5, y: 10, char: '✦', size: 0.65, color: '#ff6eb4', dur: 2.2, delay: 0.0, anim: 'sp-twinkle' },
+  { id:  2, x: 15, y: 25, char: '✶', size: 0.50, color: '#ff9944', dur: 1.9, delay: 0.7, anim: 'sp-float'   },
+  { id:  3, x: 28, y:  5, char: '✸', size: 0.70, color: '#ffdd44', dur: 2.5, delay: 0.3, anim: 'sp-drift'   },
+  { id:  4, x: 42, y: 18, char: '★', size: 0.40, color: '#44ffaa', dur: 2.0, delay: 1.1, anim: 'sp-twinkle' },
+  { id:  5, x: 55, y:  8, char: '✦', size: 0.60, color: '#44ccff', dur: 2.8, delay: 0.5, anim: 'sp-float'   },
+  { id:  6, x: 68, y: 22, char: '✶', size: 0.50, color: '#aa66ff', dur: 1.7, delay: 0.2, anim: 'sp-twinkle' },
+  { id:  7, x: 82, y: 12, char: '✸', size: 0.80, color: '#ff6eb4', dur: 2.3, delay: 0.9, anim: 'sp-drift'   },
+  { id:  8, x: 92, y: 30, char: '✦', size: 0.40, color: '#ffdd44', dur: 2.1, delay: 0.4, anim: 'sp-twinkle' },
+  { id:  9, x:  8, y: 45, char: '✺', size: 0.60, color: '#44ccff', dur: 2.6, delay: 1.3, anim: 'sp-float'   },
+  { id: 10, x: 22, y: 55, char: '✶', size: 0.50, color: '#aa66ff', dur: 1.8, delay: 0.6, anim: 'sp-drift'   },
+  { id: 11, x: 35, y: 38, char: '★', size: 0.70, color: '#ff9944', dur: 2.4, delay: 0.1, anim: 'sp-twinkle' },
+  { id: 12, x: 48, y: 60, char: '✦', size: 0.40, color: '#44ffaa', dur: 2.0, delay: 1.5, anim: 'sp-float'   },
+  { id: 13, x: 62, y: 42, char: '✸', size: 0.60, color: '#ff6eb4', dur: 2.7, delay: 0.8, anim: 'sp-drift'   },
+  { id: 14, x: 75, y: 55, char: '✶', size: 0.50, color: '#ffdd44', dur: 1.9, delay: 0.3, anim: 'sp-twinkle' },
+  { id: 15, x: 88, y: 48, char: '✺', size: 0.70, color: '#44ccff', dur: 2.2, delay: 1.0, anim: 'sp-float'   },
+  { id: 16, x:  3, y: 70, char: '✦', size: 0.50, color: '#aa66ff', dur: 2.5, delay: 0.5, anim: 'sp-twinkle' },
+  { id: 17, x: 18, y: 78, char: '★', size: 0.60, color: '#ff9944', dur: 1.8, delay: 1.2, anim: 'sp-drift'   },
+  { id: 18, x: 32, y: 85, char: '✶', size: 0.40, color: '#44ffaa', dur: 2.3, delay: 0.7, anim: 'sp-float'   },
+  { id: 19, x: 45, y: 72, char: '✸', size: 0.70, color: '#ff6eb4', dur: 2.0, delay: 0.2, anim: 'sp-twinkle' },
+  { id: 20, x: 58, y: 88, char: '✦', size: 0.50, color: '#ffdd44', dur: 2.6, delay: 1.4, anim: 'sp-drift'   },
+  { id: 21, x: 72, y: 75, char: '✺', size: 0.60, color: '#44ccff', dur: 1.7, delay: 0.6, anim: 'sp-float'   },
+  { id: 22, x: 85, y: 90, char: '★', size: 0.40, color: '#aa66ff', dur: 2.4, delay: 0.9, anim: 'sp-twinkle' },
+  { id: 23, x: 95, y: 65, char: '✶', size: 0.70, color: '#ff9944', dur: 2.1, delay: 0.4, anim: 'sp-drift'   },
+  { id: 24, x: 10, y: 92, char: '✦', size: 0.50, color: '#44ffaa', dur: 2.8, delay: 1.1, anim: 'sp-float'   },
+  { id: 25, x: 25, y: 65, char: '✸', size: 0.60, color: '#ff6eb4', dur: 2.0, delay: 0.3, anim: 'sp-twinkle' },
+  { id: 26, x: 38, y: 48, char: '✶', size: 0.40, color: '#ffdd44', dur: 2.3, delay: 1.6, anim: 'sp-drift'   },
+  { id: 27, x: 52, y: 32, char: '★', size: 0.70, color: '#44ccff', dur: 1.9, delay: 0.7, anim: 'sp-float'   },
+  { id: 28, x: 65, y: 18, char: '✺', size: 0.50, color: '#aa66ff', dur: 2.5, delay: 0.2, anim: 'sp-twinkle' },
+  { id: 29, x: 79, y: 35, char: '✦', size: 0.60, color: '#ff9944', dur: 2.2, delay: 1.3, anim: 'sp-drift'   },
+  { id: 30, x: 90, y: 20, char: '✶', size: 0.40, color: '#44ffaa', dur: 2.7, delay: 0.5, anim: 'sp-float'   },
+  { id: 31, x: 20, y: 35, char: '✷', size: 0.55, color: '#ff6eb4', dur: 2.1, delay: 0.8, anim: 'sp-twinkle' },
+  { id: 32, x: 50, y: 50, char: '✵', size: 0.65, color: '#44ccff', dur: 1.8, delay: 1.5, anim: 'sp-drift'   },
+  { id: 33, x: 70, y: 62, char: '✦', size: 0.45, color: '#ffdd44', dur: 2.4, delay: 0.1, anim: 'sp-float'   },
+  { id: 34, x: 40, y: 95, char: '✶', size: 0.70, color: '#aa66ff', dur: 2.0, delay: 0.9, anim: 'sp-twinkle' },
+  { id: 35, x: 60, y: 78, char: '★', size: 0.50, color: '#ff9944', dur: 2.6, delay: 0.4, anim: 'sp-drift'   },
+  { id: 36, x: 15, y: 58, char: '✸', size: 0.60, color: '#44ffaa', dur: 1.7, delay: 1.2, anim: 'sp-float'   },
+  { id: 37, x: 83, y: 72, char: '✺', size: 0.45, color: '#ff6eb4', dur: 2.3, delay: 0.6, anim: 'sp-twinkle' },
+  { id: 38, x: 97, y: 85, char: '✦', size: 0.70, color: '#ffdd44', dur: 2.1, delay: 1.4, anim: 'sp-drift'   },
+  { id: 39, x: 30, y: 20, char: '✶', size: 0.50, color: '#44ccff', dur: 2.5, delay: 0.3, anim: 'sp-float'   },
+  { id: 40, x: 73, y:  8, char: '★', size: 0.60, color: '#aa66ff', dur: 1.9, delay: 1.0, anim: 'sp-twinkle' },
+  { id: 41, x: 12, y: 82, char: '✷', size: 0.55, color: '#ff9944', dur: 2.2, delay: 0.4, anim: 'sp-drift'   },
+  { id: 42, x: 44, y: 28, char: '✵', size: 0.45, color: '#44ffaa', dur: 1.8, delay: 1.7, anim: 'sp-float'   },
+  { id: 43, x: 77, y: 42, char: '✦', size: 0.65, color: '#ff6eb4', dur: 2.6, delay: 0.2, anim: 'sp-twinkle' },
+  { id: 44, x: 93, y: 55, char: '✸', size: 0.40, color: '#ffdd44', dur: 2.0, delay: 0.8, anim: 'sp-drift'   },
+  { id: 45, x: 57, y: 15, char: '✶', size: 0.70, color: '#44ccff', dur: 2.4, delay: 1.3, anim: 'sp-float'   },
+] as const;
+
 export default function Layout() {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('book_app_theme') as Theme) || 'dark'
@@ -16,6 +64,26 @@ export default function Layout() {
 
   return (
     <div className="layout">
+      {theme === 'rainbow' && (
+        <div className="rainbow-sparkles" aria-hidden="true">
+          {SPARKLES.map(s => (
+            <span
+              key={s.id}
+              className={s.anim}
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                fontSize: `${s.size}rem`,
+                color: s.color,
+                '--sp-dur': `${s.dur}s`,
+                '--sp-delay': `${s.delay}s`,
+              } as React.CSSProperties}
+            >
+              {s.char}
+            </span>
+          ))}
+        </div>
+      )}
       <aside className="sidebar">
         <div className="sidebar__brand">
           <span className="sidebar__brand-icon">
