@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette, Circle } from 'lucide-react';
 
-type Theme = 'dark' | 'light' | 'purple' | 'rainbow';
+type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo';
 
 const SPARKLES = [
   { id:  1, x:  5, y: 10, char: '✦', size: 0.65, color: '#ff6eb4', dur: 2.2, delay: 0.0, anim: 'sp-twinkle' },
@@ -157,6 +157,23 @@ export default function Layout() {
           >
             <Palette size={16} />
           </button>
+          {([
+            { id: 'red',    color: '#ef4444', label: 'Red theme'    },
+            { id: 'orange', color: '#f97316', label: 'Orange theme' },
+            { id: 'yellow', color: '#eab308', label: 'Yellow theme' },
+            { id: 'green',  color: '#22c55e', label: 'Green theme'  },
+            { id: 'blue',   color: '#3b82f6', label: 'Blue theme'   },
+            { id: 'indigo', color: '#6366f1', label: 'Indigo theme' },
+          ] as const).map(({ id, color, label }) => (
+            <button
+              key={id}
+              className={`btn btn--icon btn--ghost${theme === id ? ' nav-item--active' : ''}`}
+              onClick={() => setTheme(id)}
+              title={label}
+            >
+              <Circle size={14} fill={color} color={color} />
+            </button>
+          ))}
         </div>
       </aside>
       <main className="main-content">
