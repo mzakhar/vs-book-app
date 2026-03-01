@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="uwL" x1="28" y1="28" x2="4" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="uwR" x1="36" y1="28" x2="60" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="lwG" x1="0" y1="40" x2="0" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Upper left wing -->
+  <path d="M 28,28 C 14,10 0,12 4,26 C 6,36 16,42 24,40 L 28,36 Z"
+        fill="url(#uwL)"/>
+  <!-- Upper right wing -->
+  <path d="M 36,28 C 50,10 64,12 60,26 C 58,36 48,42 40,40 L 36,36 Z"
+        fill="url(#uwR)"/>
+  <!-- Lower left wing -->
+  <path d="M 24,40 C 10,44 4,56 14,58 C 22,60 28,54 28,44 Z"
+        fill="url(#lwG)"/>
+  <!-- Lower right wing -->
+  <path d="M 40,40 C 54,44 60,56 50,58 C 42,60 36,54 36,44 Z"
+        fill="url(#lwG)"/>
+
+  <!-- Wing veins (subtle) -->
+  <path d="M 28,30 C 20,24 12,20 6,24" stroke="#6366f1" stroke-width="0.5" fill="none" opacity="0.45"/>
+  <path d="M 28,33 C 18,32 10,34 6,38" stroke="#6366f1" stroke-width="0.5" fill="none" opacity="0.45"/>
+  <path d="M 36,30 C 44,24 52,20 58,24" stroke="#6366f1" stroke-width="0.5" fill="none" opacity="0.45"/>
+  <path d="M 36,33 C 46,32 54,34 58,38" stroke="#6366f1" stroke-width="0.5" fill="none" opacity="0.45"/>
+
+  <!-- Upper wing eye spots -->
+  <circle cx="11" cy="26" r="5.5" fill="#0891b2" opacity="0.85"/>
+  <circle cx="11" cy="26" r="3"   fill="#0f172a"/>
+  <circle cx="11" cy="26" r="1.2" fill="#bae6fd"/>
+  <circle cx="53" cy="26" r="5.5" fill="#0891b2" opacity="0.85"/>
+  <circle cx="53" cy="26" r="3"   fill="#0f172a"/>
+  <circle cx="53" cy="26" r="1.2" fill="#bae6fd"/>
+
+  <!-- Lower wing spots -->
+  <circle cx="19" cy="51" r="3"   fill="#6366f1" opacity="0.55"/>
+  <circle cx="19" cy="51" r="1.5" fill="#0f172a" opacity="0.7"/>
+  <circle cx="45" cy="51" r="3"   fill="#6366f1" opacity="0.55"/>
+  <circle cx="45" cy="51" r="1.5" fill="#0f172a" opacity="0.7"/>
+
+  <!-- Wing edge dots -->
+  <circle cx="4"  cy="20" r="1" fill="#818cf8" opacity="0.65"/>
+  <circle cx="3"  cy="30" r="1" fill="#818cf8" opacity="0.65"/>
+  <circle cx="60" cy="20" r="1" fill="#818cf8" opacity="0.65"/>
+  <circle cx="61" cy="30" r="1" fill="#818cf8" opacity="0.65"/>
+
+  <!-- Antennae -->
+  <path d="M 30,20 Q 24,13 22,8" stroke="#6d28d9" stroke-width="1.2" fill="none"/>
+  <circle cx="22" cy="7.5" r="1.8" fill="#a78bfa"/>
+  <path d="M 34,20 Q 40,13 42,8" stroke="#6d28d9" stroke-width="1.2" fill="none"/>
+  <circle cx="42" cy="7.5" r="1.8" fill="#a78bfa"/>
+
+  <!-- Skull -->
+  <!-- Cranium -->
+  <circle cx="32" cy="26" r="9.5" fill="#f0ebe2" stroke="#2a1a3e" stroke-width="0.7"/>
+  <!-- Jaw -->
+  <path d="M 24.5,32 L 39.5,32 Q 40.5,38 38.5,42 Q 35.5,44.5 32,44.5 Q 28.5,44.5 25.5,42 Q 23.5,38 24.5,32 Z"
+        fill="#e5ddd0" stroke="#2a1a3e" stroke-width="0.6"/>
+  <!-- Eye sockets -->
+  <ellipse cx="28"   cy="25" rx="3.2" ry="3.5" fill="#1a0a2e"/>
+  <ellipse cx="36"   cy="25" rx="3.2" ry="3.5" fill="#1a0a2e"/>
+  <!-- Socket glints -->
+  <circle cx="26.8" cy="23.5" r="0.9" fill="#3d2a58" opacity="0.7"/>
+  <circle cx="34.8" cy="23.5" r="0.9" fill="#3d2a58" opacity="0.7"/>
+  <!-- Nose cavities -->
+  <ellipse cx="30.5" cy="30.5" rx="1.2" ry="1.4" fill="#2a1a3e"/>
+  <ellipse cx="33.5" cy="30.5" rx="1.2" ry="1.4" fill="#2a1a3e"/>
+  <!-- Teeth: horizontal separator + 3 dividers -->
+  <line x1="24.5" y1="37" x2="39.5" y2="37" stroke="#2a1a3e" stroke-width="0.8"/>
+  <line x1="28"   y1="37" x2="28"   y2="42" stroke="#2a1a3e" stroke-width="0.8"/>
+  <line x1="32"   y1="37" x2="32"   y2="44" stroke="#2a1a3e" stroke-width="0.8"/>
+  <line x1="36"   y1="37" x2="36"   y2="42" stroke="#2a1a3e" stroke-width="0.8"/>
+</svg>
