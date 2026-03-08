@@ -8,7 +8,7 @@ import SeriesPage from './pages/SeriesPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/books">
       <ToastProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
