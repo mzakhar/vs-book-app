@@ -24,12 +24,13 @@
     background: $bg-elevated;
     color: $text-1;
     border: 1px solid $border-light;
+    backdrop-filter: var(--glass-blur);
     &:hover { background: $bg-hover; border-color: var(--btn-secondary-hover-border); }
   }
 
   &--ghost {
     color: $text-2;
-    &:hover { background: $bg-elevated; color: $text-1; }
+    &:hover { background: $bg-elevated; color: $text-1; backdrop-filter: var(--glass-blur); }
   }
 
   &--danger {
@@ -78,6 +79,7 @@
   padding: $space-2 + 2px $space-3;
   transition: border-color $transition, box-shadow $transition;
   width: 100%;
+  backdrop-filter: var(--glass-blur);
 
   &::placeholder { color: $text-4; }
 
@@ -181,6 +183,7 @@
     color: $text-1;
     font-size: 0.875rem;
     transition: border-color $transition;
+    backdrop-filter: var(--glass-blur);
 
     &::placeholder { color: $text-4; }
     &:focus { outline: none; border-color: $border-light; }
@@ -203,13 +206,15 @@
 
 .modal {
   background: $bg-card;
-  border: 1px solid $border-light;
+  border: var(--glass-border, 1px solid $border-light);
   border-radius: $radius-xl;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   animation: slideUp 200ms ease;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, 0 12px 48px rgba(0, 0, 0, 0.4));
   @include scrollbar;
 
   &--sm { max-width: 420px; }
@@ -292,6 +297,7 @@
   max-width: 400px;
   border: 1px solid;
   animation: slideInRight 200ms ease;
+  backdrop-filter: var(--glass-blur);
 
   &--success { background: var(--toast-success-bg); border-color: var(--toast-success-border); color: $success; }
   &--error   { background: var(--toast-error-bg);   border-color: var(--toast-error-border);   color: $danger; }
@@ -358,6 +364,7 @@
   border-radius: $radius-sm;
   font-size: 0.75rem;
   color: $text-2;
+  backdrop-filter: var(--glass-blur);
 }
 
 // ── Scrollbar global ──────────────────────────────────────────────────────
@@ -373,6 +380,7 @@
   font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid;
+  backdrop-filter: var(--glass-blur);
 
   &::before {
     content: '';
@@ -406,6 +414,7 @@
   border: 1px solid $border;
   border-radius: $radius;
   padding: 2px;
+  backdrop-filter: var(--glass-blur);
 
   &__btn {
     padding: 5px $space-3;
@@ -420,6 +429,7 @@
     &--active {
       background: $bg-card;
       color: $text-1;
+      backdrop-filter: var(--glass-blur);
     }
   }
 }
@@ -453,6 +463,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: var(--glass-blur);
   }
 
   &__cover {
@@ -507,7 +518,7 @@
 .book-card {
   position: relative;
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   overflow: hidden;
   transition: border-color $transition, transform $transition, box-shadow $transition;
@@ -515,6 +526,8 @@
   color: inherit;
   display: flex;
   flex-direction: column;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &:hover {
     border-color: $border-light;
@@ -533,6 +546,7 @@
     color: $text-4;
     overflow: hidden;
     flex-shrink: 0;
+    backdrop-filter: var(--glass-blur);
 
     img {
       width: 100%;
@@ -583,6 +597,7 @@
     background: $bg-card;
     border: 1px solid $border;
     color: $danger;
+    backdrop-filter: var(--glass-blur);
 
     &:hover { background: $danger-bg; }
   }
@@ -598,13 +613,15 @@
 
 .stat-card {
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   padding: $space-4 $space-5;
   display: flex;
   flex-direction: column;
   gap: $space-1;
   transition: border-color $transition, box-shadow $transition;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &:hover {
     border-color: $border-light;
@@ -643,9 +660,11 @@
 
 .chart-card {
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   padding: $space-5;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &__title {
     font-size: 0.8125rem;
@@ -677,6 +696,7 @@
     background: $bg-elevated;
     border-radius: 4px;
     overflow: hidden;
+    backdrop-filter: var(--glass-blur);
   }
 
   &__fill {
@@ -737,11 +757,13 @@
   gap: $space-3;
   padding: $space-3 $space-4;
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   text-decoration: none;
   color: inherit;
   transition: border-color $transition, background $transition;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &:hover { border-color: $border-light; background: $bg-elevated; }
 
@@ -781,6 +803,7 @@
     align-items: center;
     justify-content: center;
     transition: border-color $transition;
+    backdrop-filter: var(--glass-blur);
 
     &:hover { border-color: $accent; }
   }
@@ -831,8 +854,9 @@
   height: 140px;
   object-fit: cover;
   border-radius: $radius-lg;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   flex-shrink: 0;
+  backdrop-filter: var(--glass-blur);
 }
 
 // ── Open Library Search ────────────────────────────────────────────────────
@@ -884,6 +908,7 @@
   max-height: 300px;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: var(--glass-blur);
   @include scrollbar;
 }
 
@@ -947,10 +972,12 @@
 // ── Series Card (SeriesPage) ───────────────────────────────────────────────
 .series-card {
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   overflow: hidden;
   transition: border-color $transition;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &:hover { border-color: $border-light; }
 
@@ -1067,9 +1094,11 @@
 // ── Book Detail Series Card ────────────────────────────────────────────────
 .book-detail__series {
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   padding: $space-4 $space-5;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &-header {
     display: flex;
@@ -1100,10 +1129,12 @@
 // ── Note Card ─────────────────────────────────────────────────────────────
 .note-card {
   background: $bg-card;
-  border: 1px solid $border;
+  border: var(--glass-border, 1px solid $border);
   border-radius: $radius-lg;
   padding: $space-4 $space-5;
   transition: border-color $transition, box-shadow $transition;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
 
   &:hover {
     border-color: $border-light;

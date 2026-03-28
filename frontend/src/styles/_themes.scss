@@ -528,3 +528,117 @@
 
   --star-color: #c07a10;
 }
+
+// ── Theme: Glassmorphism Light ─────────────────────────────────────────────
+[data-theme="glass-light"] {
+  --bg-base:     transparent;
+  --bg-surface:  rgba(255, 255, 255, 0.4);
+  --bg-card:     rgba(255, 255, 255, 0.3);
+  --bg-elevated: rgba(255, 255, 255, 0.5);
+  --bg-hover:    rgba(255, 255, 255, 0.6);
+
+  --glass-blur:   blur(12px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+
+  --border:       rgba(255, 255, 255, 0.3);
+  --border-light: rgba(255, 255, 255, 0.2);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.5);
+
+  --accent:        #2563eb;
+  --accent-hover:  #1d4ed8;
+  --accent-muted:  rgba(37, 99, 235, 0.15);
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+  --accent-focus:  rgba(37, 99, 235, 0.2);
+
+  --text-1: #0f1923;
+  --text-2: #334a5e;
+  --text-3: #5a6a7e;
+  --text-4: #8099b0;
+
+  --success:    #2e7d52;
+  --success-bg: rgba(46, 125, 82, 0.1);
+  --danger:     #c0392b;
+  --danger-bg:  rgba(192, 57, 43, 0.08);
+  --danger-border:   rgba(192, 57, 43, 0.25);
+  --danger-hover-bg: rgba(192, 57, 43, 0.15);
+
+  --toast-success-bg:     #e8f5ee;
+  --toast-error-bg:       #fce8e8;
+  --toast-info-bg:        #e8f0fc;
+  --toast-success-border: rgba(46, 125, 82, 0.3);
+  --toast-error-border:   rgba(192, 57, 43, 0.3);
+  --toast-info-border:    rgba(37, 99, 235, 0.3);
+
+  --modal-overlay: rgba(255, 255, 255, 0.2);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23334a5e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #334a5e;
+  --status-unread-bg:    rgba(255, 255, 255, 0.2);
+  --status-unread-border: rgba(255, 255, 255, 0.4);
+  --status-reading-color: #2563eb;
+  --status-reading-bg:    rgba(37, 99, 235, 0.1);
+  --status-reading-border: rgba(37, 99, 235, 0.3);
+  --status-read-color: #2e7d52;
+  --status-read-bg:    rgba(46, 125, 82, 0.1);
+  --status-read-border: rgba(46, 125, 82, 0.3);
+
+  --star-color: #c07a10;
+}
+
+// ── Theme: Glassmorphism Rich ──────────────────────────────────────────────
+[data-theme="glass-rich"] {
+  --bg-base:     transparent;
+  --bg-surface:  rgba(15, 9, 32, 0.4);
+  --bg-card:     rgba(15, 9, 32, 0.3);
+  --bg-elevated: rgba(30, 18, 64, 0.5);
+  --bg-hover:    rgba(45, 27, 96, 0.6);
+
+  --glass-blur:   blur(16px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  --border:       rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.3);
+
+  --accent:        #9b6dff;
+  --accent-hover:  #b48fff;
+  --accent-muted:  rgba(155, 109, 255, 0.25);
+  --accent-subtle: rgba(155, 109, 255, 0.12);
+  --accent-focus:  rgba(155, 109, 255, 0.3);
+
+  --text-1: #ffffff;
+  --text-2: #c0a8e8;
+  --text-3: #8060b0;
+  --text-4: #4a3070;
+
+  --success:    #4caf7a;
+  --success-bg: rgba(76, 175, 122, 0.15);
+  --danger:     #ff6b6b;
+  --danger-bg:  rgba(255, 107, 107, 0.12);
+  --danger-border:   rgba(255, 107, 107, 0.3);
+  --danger-hover-bg: rgba(255, 107, 107, 0.22);
+
+  --toast-success-bg:     rgba(13, 31, 22, 0.8);
+  --toast-error-bg:       rgba(31, 14, 14, 0.8);
+  --toast-info-bg:        rgba(22, 12, 46, 0.8);
+  --toast-success-border: rgba(76, 175, 122, 0.4);
+  --toast-error-border:   rgba(255, 107, 107, 0.4);
+  --toast-info-border:    rgba(155, 109, 255, 0.4);
+
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238060b0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #c0a8e8;
+  --status-unread-bg:    rgba(255, 255, 255, 0.08);
+  --status-unread-border: rgba(255, 255, 255, 0.15);
+  --status-reading-color: #9b6dff;
+  --status-reading-bg:    rgba(155, 109, 255, 0.15);
+  --status-reading-border: rgba(155, 109, 255, 0.35);
+  --status-read-color: #4caf7a;
+  --status-read-bg:    rgba(76, 175, 122, 0.15);
+  --status-read-border: rgba(76, 175, 122, 0.35);
+
+  --star-color: #ffdd44;
+}

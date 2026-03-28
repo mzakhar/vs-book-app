@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette, Circle, Star } from 'lucide-react';
 
-type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo';
+type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo' | 'glass-light' | 'glass-rich';
 
 const SPARKLES = [
   { id:  1, x:  5, y: 10, char: '✦', size: 0.65, color: '#ff6eb4', dur: 2.2, delay: 0.0, anim: 'sp-twinkle' },
@@ -170,7 +170,9 @@ export default function Layout() {
             { id: 'yellow', color: '#eab308', label: 'Yellow theme' },
             { id: 'green',  color: '#22c55e', label: 'Green theme'  },
             { id: 'blue',   color: '#3b82f6', label: 'Blue theme'   },
-            { id: 'indigo', color: '#6366f1', label: 'Indigo theme' },
+            { id: 'indigo',      color: '#6366f1', label: 'Indigo theme' },
+            { id: 'glass-light', color: '#ffffff', label: 'Glass Light'  },
+            { id: 'glass-rich',  color: '#9b6dff', label: 'Glass Rich'   },
           ] as const).map(({ id, color, label }) => (
             <button
               key={id}
