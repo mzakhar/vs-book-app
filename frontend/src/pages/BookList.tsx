@@ -191,7 +191,9 @@ export default function BookList() {
                 {book.author && <div className="book-card__author">{book.author}</div>}
                 <div className="book-card__meta">
                   <StatusBadge status={book.status} />
-                  {book.genre && <span className="tag">{book.genre}</span>}
+                  {(book.genres || book.genre)?.split(',').map(g => g.trim()).filter(Boolean).map(g => (
+                    <span key={g} className="tag">{g}</span>
+                  ))}
                 </div>
                 <StarRating rating={book.rating} />
               </div>

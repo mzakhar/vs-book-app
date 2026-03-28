@@ -5,6 +5,7 @@ export interface Book {
   title: string;
   author?: string;
   genre?: string;
+  genres?: string | null;
   status: BookStatus;
   rating?: number;
   cover_url?: string;

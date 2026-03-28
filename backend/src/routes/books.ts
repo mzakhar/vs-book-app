@@ -6,10 +6,13 @@ import { findOrCreateSeries } from './series';
 const router = Router();
 
 const SELECT_BOOK = `
-  SELECT b.*, s.name as series_name
+  SELECT b.*, s.name as series_name, GROUP_CONCAT(bg.genre) as genres
   FROM books b
   LEFT JOIN series s ON s.id = b.series_id
+  LEFT JOIN book_genres bg ON bg.book_id = b.id
 `;
+
+const GROUP_BY_BOOK = `GROUP BY b.id`;
 
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
@@ -38,12 +41,12 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     query += ` WHERE ` + where.join(' AND ');
   }
 
-  query += ` ORDER BY b.created_at DESC`;
+  query += ` ${GROUP_BY_BOOK} ORDER BY b.created_at DESC`;
   res.json(await db.all(query, ...params));
 }));
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
-  const { title, author, genre, status, rating, cover_url,
+  const { title, author, genre, genres, status, rating, cover_url,
           series_name, series_position, page_count, description } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
 
@@ -55,11 +58,10 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   }
 
   const result = await db.run(
-    `INSERT INTO books (title, author, genre, status, rating, cover_url, series_id, series_position, page_count, description)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books (title, author, status, rating, cover_url, series_id, series_position, page_count, description)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     title.trim(),
     author?.trim() || null,
-    genre?.trim() || null,
     status || 'unread',
     rating ? Number(rating) : null,
     cover_url?.trim() || null,
@@ -68,7 +70,16 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     page_count ? Number(page_count) : null,
     description?.trim() || null
   );
-  res.status(201).json(await db.get(`${SELECT_BOOK} WHERE b.id = ?`, result.lastID));
+
+  const bookId = result.lastID;
+  const genresToSave = Array.isArray(genres) ? genres : (genre ? genre.split(',').map((g: string) => g.trim()) : []);
+  for (const g of genresToSave) {
+    if (g && g.trim()) {
+      await db.run("INSERT OR IGNORE INTO book_genres (book_id, genre) VALUES (?, ?)", bookId, g.trim());
+    }
+  }
+
+  res.status(201).json(await db.get(`${SELECT_BOOK} WHERE b.id = ? ${GROUP_BY_BOOK}`, bookId));
 }));
 
 router.get('/stats', asyncHandler(async (_req: Request, res: Response) => {
@@ -85,8 +96,8 @@ router.get('/stats', asyncHandler(async (_req: Request, res: Response) => {
     `),
     db.get(`SELECT COUNT(*) as count FROM notes`),
     db.all(`
-      SELECT COALESCE(NULLIF(TRIM(genre),''),'Untagged') as genre, COUNT(*) as count
-      FROM books GROUP BY genre ORDER BY count DESC LIMIT 10
+      SELECT genre, COUNT(*) as count
+      FROM book_genres GROUP BY genre ORDER BY count DESC LIMIT 10
     `),
     db.all(`
       SELECT rating, COUNT(*) as count FROM books
@@ -109,7 +120,7 @@ router.get('/stats', asyncHandler(async (_req: Request, res: Response) => {
 
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const book = await db.get(`${SELECT_BOOK} WHERE b.id = ?`, req.params.id);
+  const book = await db.get(`${SELECT_BOOK} WHERE b.id = ? ${GROUP_BY_BOOK}`, req.params.id);
   if (!book) return res.status(404).json({ error: 'Book not found' });
   res.json(book);
 }));
@@ -119,7 +130,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   const existing = await db.get(`SELECT * FROM books WHERE id = ?`, req.params.id);
   if (!existing) return res.status(404).json({ error: 'Book not found' });
 
-  const { title, author, genre, status, rating, cover_url,
+  const { title, author, genre, genres, status, rating, cover_url,
           series_name, series_position, page_count, description } = req.body;
 
   let series_id: number | null = existing.series_id;
@@ -132,11 +143,10 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   }
 
   await db.run(
-    `UPDATE books SET title=?, author=?, genre=?, status=?, rating=?, cover_url=?,
+    `UPDATE books SET title=?, author=?, status=?, rating=?, cover_url=?,
      series_id=?, series_position=?, page_count=?, description=? WHERE id=?`,
     title !== undefined ? title.trim() || existing.title : existing.title,
     author !== undefined ? author?.trim() || null : existing.author,
-    genre !== undefined ? genre?.trim() || null : existing.genre,
     status !== undefined ? status : existing.status,
     rating !== undefined ? (rating ? Number(rating) : null) : existing.rating,
     cover_url !== undefined ? cover_url?.trim() || null : existing.cover_url,
@@ -146,7 +156,18 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     description !== undefined ? description?.trim() || null : existing.description,
     req.params.id
   );
-  res.json(await db.get(`${SELECT_BOOK} WHERE b.id = ?`, req.params.id));
+
+  if (genres !== undefined || genre !== undefined) {
+    await db.run("DELETE FROM book_genres WHERE book_id = ?", req.params.id);
+    const genresToSave = Array.isArray(genres) ? genres : (genre ? genre.split(',').map((g: string) => g.trim()) : []);
+    for (const g of genresToSave) {
+      if (g && g.trim()) {
+        await db.run("INSERT OR IGNORE INTO book_genres (book_id, genre) VALUES (?, ?)", req.params.id, g.trim());
+      }
+    }
+  }
+
+  res.json(await db.get(`${SELECT_BOOK} WHERE b.id = ? ${GROUP_BY_BOOK}`, req.params.id));
 }));
 
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {

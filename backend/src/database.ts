@@ -41,6 +41,12 @@ export async function getDb(): Promise<Database> {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS book_genres (
+      book_id    INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+      genre      TEXT NOT NULL,
+      PRIMARY KEY (book_id, genre)
+    );
   `);
 
   // Migrations
@@ -53,6 +59,19 @@ export async function getDb(): Promise<Database> {
   for (const sql of migrations) {
     try { await _db.run(sql); } catch { /* column already exists */ }
   }
+
+  // Migrate existing single genre field to book_genres table
+  try {
+    const existingGenres = await _db.all("SELECT id, genre FROM books WHERE genre IS NOT NULL AND genre != ''");
+    for (const row of existingGenres) {
+      const genres = row.genre.split(',').map((g: string) => g.trim()).filter((g: string) => g !== '');
+      for (const g of genres) {
+        try {
+          await _db.run("INSERT OR IGNORE INTO book_genres (book_id, genre) VALUES (?, ?)", row.id, g);
+        } catch (e) { /* ignore */ }
+      }
+    }
+  } catch (e) { /* column might not exist or other issue */ }
 
   // Handle 'wishlist' status migration for existing tables
   try {

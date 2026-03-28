@@ -42,7 +42,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
   const [form, setForm] = useState({
     title:           existing?.title           ?? '',
     author:          existing?.author          ?? '',
-    genre:           existing?.genre           ?? '',
+    genre:           existing?.genres || existing?.genre || '',
     status:          existing?.status          ?? 'unread' as BookStatus,
     rating:          existing?.rating          ? String(existing.rating) : '',
     cover_url:       existing?.cover_url       ?? '',
@@ -146,7 +146,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
       const payload = {
         title:           form.title.trim(),
         author:          form.author.trim() || undefined,
-        genre:           form.genre.trim() || undefined,
+        genres:          form.genre.split(',').map(g => g.trim()).filter(g => g !== ''),
         status:          form.status,
         rating:          form.rating ? Number(form.rating) : undefined,
         cover_url:       form.cover_url.trim() || undefined,
