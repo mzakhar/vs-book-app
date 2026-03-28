@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Book, BookStats, Note, Series } from '../types';
 
-const api = axios.create({ baseURL: '/api' });
+const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
 
 // Books
 export const getBooks = (q?: string) =>
