@@ -42,7 +42,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
   const [form, setForm] = useState({
     title:           existing?.title           ?? '',
     author:          existing?.author          ?? '',
-    genre:           existing?.genres || existing?.genre || '',
+    genre:           (existing?.genres || existing?.genre || '') as string,
     status:          existing?.status          ?? 'unread' as BookStatus,
     rating:          existing?.rating          ? String(existing.rating) : '',
     cover_url:       existing?.cover_url       ?? '',

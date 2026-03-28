@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown } from 'lucide-react';
 import { getBooks, deleteBook } from '../api';
-import type { Book, BookStatus } from '../types';
+import { Book, BookStatus, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
 import { useToast } from '../components/Toast';
@@ -29,6 +29,7 @@ const STATUS_LABEL: Record<BookStatus, string> = {
   unread: 'Unread',
   reading: 'Reading',
   read: 'Read',
+  wishlist: 'Wishlist',
 };
 
 function StatusBadge({ status }: { status: BookStatus }) {
@@ -191,7 +192,7 @@ export default function BookList() {
                 {book.author && <div className="book-card__author">{book.author}</div>}
                 <div className="book-card__meta">
                   <StatusBadge status={book.status} />
-                  {(book.genres || book.genre)?.split(',').map(g => g.trim()).filter(Boolean).map(g => (
+                  {parseGenres(book).map(g => (
                     <span key={g} className="tag">{g}</span>
                   ))}
                 </div>

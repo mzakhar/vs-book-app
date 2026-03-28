@@ -5,7 +5,7 @@ export interface Book {
   title: string;
   author?: string;
   genre?: string;
-  genres?: string | null;
+  genres?: string | string[] | null;
   status: BookStatus;
   rating?: number;
   cover_url?: string;
@@ -55,4 +55,10 @@ export interface Series {
   book_count: number;
   read_count: number;
   books: SeriesBook[];
+}
+
+export function parseGenres(book: Book): string[] {
+  const g = book.genres || book.genre || '';
+  if (Array.isArray(g)) return g;
+  return g.split(',').map(s => s.trim()).filter(Boolean);
 }

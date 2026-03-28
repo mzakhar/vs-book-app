@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen, List } from 'lucide-react';
 import { getBook, getNotes, deleteBook, deleteNote, getSeriesById } from '../api';
-import type { Book, Note, Series } from '../types';
+import { Book, Note, Series, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
 import NoteForm from '../components/NoteForm';
@@ -152,7 +152,7 @@ export default function BookDetail() {
             <span className={`status-badge status-badge--${book.status}`}>
               {STATUS_LABEL[book.status]}
             </span>
-            {(book.genres || book.genre)?.split(',').map(g => g.trim()).filter(Boolean).map(g => (
+            {parseGenres(book).map(g => (
               <span key={g} className="tag">{g}</span>
             ))}
             {book.page_count && <span className="tag">{book.page_count} pages</span>}

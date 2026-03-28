@@ -32,6 +32,7 @@ export async function searchOpenLibrary(query: string): Promise<OLSearchResult[]
   const data = await res.json();
   return data.docs ?? [];
 }
+
 export async function fetchWorkDetails(key: string): Promise<any> {
   // key is like "/works/OL12345W"
   const workKey = key.startsWith('/works/') ? key : `/works/${key}`;
@@ -53,7 +54,7 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
   const author = result.author_name?.[0] ?? '';
   const cover_url = result.cover_i ? getCoverUrl(result.cover_i) : '';
   const page_count = result.number_of_pages_median ? String(result.number_of_pages_median) : '';
-
+  
   let series_name = result.series?.[0] ?? '';
   let series_position = result.series_number?.[0] ?? '';
 
@@ -65,13 +66,14 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
     for (const ed of editions) {
       if (ed.series) {
         const edSeries = Array.isArray(ed.series) ? ed.series[0] : ed.series;
-        if (edSeries) {
-          const match = edSeries.match(/^(.*?)[,\s]+(?:book|#|v|part)?\s*(\d+(\.\d+)?)$/i);
+        if (edSeries && typeof edSeries === 'string') {
+          // Patterns: "Name (#3)", "Name, #3", "Name (Book 3)", "Name 3"
+          const match = edSeries.match(/^(.*?)[,\s]*\(?(?:book|#|v|part)?\s*(\d+(\.\d+)?)\)?$/i);
           if (match) {
-            if (!series_name) series_name = match[1].trim();
+            if (!series_name) series_name = match[1].replace(/[()]/g, '').trim();
             if (!series_position) series_position = match[2];
           } else if (!series_name) {
-            series_name = edSeries.trim();
+            series_name = edSeries.replace(/[()]/g, '').trim();
           }
         }
       }
@@ -81,8 +83,6 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
 
   // 2. Try to find series info in subjects if missing (common in OL)
   if (!series_name) {
-...
-
     for (const sub of subjects) {
       const match = sub.match(/\[series:(.*?)\]/i) || sub.match(/series:\s*(.*)/i);
       if (match) {
@@ -92,7 +92,7 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
     }
   }
 
-  // 2. Try to find series position in subjects, title, or description
+  // 3. Try to find series position in subjects, title, or description
   if (series_name && !series_position) {
     // Check subjects for #N or "Book N"
     for (const sub of subjects) {
@@ -115,7 +115,7 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
     }
   }
 
-  // 3. Fallback: Check title for (Series Name, #1) pattern
+  // 4. Fallback: Check title for (Series Name, #1) pattern
   if (!series_name) {
     const titleMatch = title.match(/\((.*?),\s*#?(\d+(\.\d+)?)\)/);
     if (titleMatch) {
@@ -126,7 +126,7 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
   
   // Normalize genre from subjects (excluding series tags)
   const genre = subjects
-    ?.filter((s: string) => !s.toLowerCase().includes('series:'))
+    ?.filter((s: any) => typeof s === 'string' && !s.toLowerCase().includes('series:'))
     .slice(0, 3)
     .join(', ') ?? '';
 
