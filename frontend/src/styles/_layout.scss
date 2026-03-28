@@ -10,6 +10,7 @@
   width: $sidebar-width;
   background: $bg-surface;
   border-right: 1px solid $border;
+  backdrop-filter: var(--glass-blur);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -70,6 +71,7 @@
   font-weight: 500;
   transition: color $transition, background $transition;
   position: relative;
+  border: 1px solid transparent;
 
   svg {
     width: 16px;
@@ -82,12 +84,16 @@
   &:hover {
     color: $text-1;
     background: $bg-elevated;
+    backdrop-filter: var(--glass-blur);
     svg { opacity: 1; }
   }
 
   &--active {
     color: $text-1;
     background: $bg-elevated;
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
 
     &::before {
       content: '';
