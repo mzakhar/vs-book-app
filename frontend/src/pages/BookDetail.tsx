@@ -30,9 +30,9 @@ function StarRating({ rating }: { rating?: number }) {
   );
 }
 
-type BookStatus = 'unread' | 'reading' | 'read';
+type BookStatus = 'unread' | 'reading' | 'read' | 'wishlist';
 const STATUS_LABEL: Record<BookStatus, string> = {
-  unread: 'Unread', reading: 'Reading', read: 'Read',
+  unread: 'Unread', reading: 'Reading', read: 'Read', wishlist: 'Wishlist',
 };
 
 export default function BookDetail() {
@@ -152,7 +152,9 @@ export default function BookDetail() {
             <span className={`status-badge status-badge--${book.status}`}>
               {STATUS_LABEL[book.status]}
             </span>
-            {book.genre && <span className="tag">{book.genre}</span>}
+            {(book.genres || book.genre)?.split(',').map(g => g.trim()).filter(Boolean).map(g => (
+              <span key={g} className="tag">{g}</span>
+            ))}
             {book.page_count && <span className="tag">{book.page_count} pages</span>}
             <StarRating rating={book.rating} />
           </div>

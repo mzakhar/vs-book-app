@@ -101,7 +101,9 @@ export default function SeriesPage() {
                             <span className="series-book__title">{book.title}</span>
                           </div>
                           <span className={`status-badge status-badge--${book.status}`}>
-                            {book.status === 'unread' ? 'Unread' : book.status === 'reading' ? 'Reading' : 'Read'}
+                            {book.status === 'unread' ? 'Unread' : 
+                             book.status === 'reading' ? 'Reading' : 
+                             book.status === 'read' ? 'Read' : 'Wishlist'}
                           </span>
                         </Link>
                       ))
