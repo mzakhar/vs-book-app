@@ -43,7 +43,7 @@ export async function fetchWorkDetails(key: string): Promise<any> {
 
 export async function fetchEditions(workKey: string): Promise<any[]> {
   const key = workKey.startsWith('/works/') ? workKey : `/works/${workKey}`;
-  const res = await fetch(`https://openlibrary.org${key}/editions.json?limit=5`);
+  const res = await fetch(`https://openlibrary.org${key}/editions.json?limit=20`);
   if (!res.ok) return [];
   const data = await res.json();
   return data.entries ?? [];
@@ -61,27 +61,61 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
   const subjects = result.subject || workDetails?.subjects || [];
   const desc = workDetails?.description?.value || workDetails?.description || '';
 
-  // 1. Check editions for series info (often more specific than work)
-  if (!series_name || !series_position) {
+  // 1. Check editions for series info with a frequency/priority logic
+  if (editions.length > 0) {
+    // key -> { name, posCounts: { "1": 2, "2": 5 }, score }
+    const seriesStats: Record<string, { name: string, posCounts: Record<string, number>, score: number }> = {};
+    
     for (const ed of editions) {
-      if (ed.series) {
-        const edSeries = Array.isArray(ed.series) ? ed.series[0] : ed.series;
-        if (edSeries && typeof edSeries === 'string') {
-          // Patterns: "Name (#3)", "Name, #3", "Name (Book 3)", "Name 3"
-          const match = edSeries.match(/^(.*?)[,\s]*\(?(?:book|#|v|part)?\s*(\d+(\.\d+)?)\)?$/i);
-          if (match) {
-            if (!series_name) series_name = match[1].replace(/[()]/g, '').trim();
-            if (!series_position) series_position = match[2];
-          } else if (!series_name) {
-            series_name = edSeries.replace(/[()]/g, '').trim();
+      if (!ed.series) continue;
+      const seriesList = Array.isArray(ed.series) ? ed.series : [ed.series];
+      
+      for (const edSeries of seriesList) {
+        if (!edSeries || typeof edSeries !== 'string') continue;
+        
+        // Patterns: "Name (#3)", "Name, #3", "Name (Book 3)", "Name 3"
+        const match = edSeries.match(/^(.*?)[,\s]*\(?(?:book|#|v|tome|part)?\s*(\d+(\.\d+)?)\)?$/i);
+        let name = '', pos = '';
+        
+        if (match) {
+          name = match[1].replace(/[()]/g, '').trim();
+          pos = match[2];
+        } else {
+          name = edSeries.replace(/[()]/g, '').trim();
+        }
+
+        if (name) {
+          const key = name.toLowerCase();
+          if (!seriesStats[key]) seriesStats[key] = { name, posCounts: {}, score: 0 };
+          seriesStats[key].score += 1;
+          if (pos) {
+            seriesStats[key].score += 5;
+            seriesStats[key].posCounts[pos] = (seriesStats[key].posCounts[pos] || 0) + 1;
           }
         }
       }
-      if (series_name && series_position) break;
+    }
+
+    const sortedSeries = Object.values(seriesStats).sort((a, b) => b.score - a.score);
+    const bestSeries = sortedSeries[0];
+    
+    if (bestSeries && bestSeries.score >= 1) {
+      if (!series_name) series_name = bestSeries.name;
+      if (!series_position) {
+        const positions = Object.entries(bestSeries.posCounts).sort((a, b) => {
+          // If counts are different, use most frequent
+          if (b[1] !== a[1]) return b[1] - a[1];
+          // If counts are equal, prefer non-'1' for sequels (heuristic)
+          if (a[0] === '1' && b[0] !== '1') return 1;
+          if (b[0] === '1' && a[0] !== '1') return -1;
+          return Number(b[0]) - Number(a[0]);
+        });
+        if (positions.length > 0) series_position = positions[0][0];
+      }
     }
   }
 
-  // 2. Try to find series info in subjects if missing (common in OL)
+  // 2. Try to find series info in subjects if still missing (common in OL)
   if (!series_name) {
     for (const sub of subjects) {
       const match = sub.match(/\[series:(.*?)\]/i) || sub.match(/series:\s*(.*)/i);
