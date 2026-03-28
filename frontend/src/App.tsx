@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import BookList from './pages/BookList';
 import BookDetail from './pages/BookDetail';
 import SeriesPage from './pages/SeriesPage';
+import Wishlist from './pages/Wishlist';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="library" element={<BookList />} />
+            <Route path="wishlist" element={<Wishlist />} />
             <Route path="books/:id" element={<BookDetail />} />
             <Route path="series" element={<SeriesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

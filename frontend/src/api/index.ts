@@ -4,8 +4,8 @@ import type { Book, BookStats, Note, Series } from '../types';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
 
 // Books
-export const getBooks = (q?: string) =>
-  api.get<Book[]>('/books', { params: q ? { q } : {} }).then(r => r.data);
+export const getBooks = (q?: string, status?: string) =>
+  api.get<Book[]>('/books', { params: { q, status } }).then(r => r.data);
 export const getBook = (id: number) =>
   api.get<Book>(`/books/${id}`).then(r => r.data);
 export const createBook = (data: Partial<Book> & { series_name?: string }) =>

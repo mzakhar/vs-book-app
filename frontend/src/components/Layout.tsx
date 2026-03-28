@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette, Circle } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Moon, Sun, Sparkles, BookMarked, Palette, Circle, Star } from 'lucide-react';
 
 type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo';
 
@@ -119,6 +119,13 @@ export default function Layout() {
           >
             <BookOpen />
             My Library
+          </NavLink>
+          <NavLink
+            to="/wishlist"
+            className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+          >
+            <Star />
+            Wishlist
           </NavLink>
           <NavLink
             to="/series"

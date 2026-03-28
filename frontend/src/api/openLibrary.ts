@@ -5,6 +5,7 @@ export interface OLSearchResult {
   cover_i?: number;
   series?: string[];
   series_number?: string[];
+  subject?: string[];
   number_of_pages_median?: number;
   first_sentence?: { value: string } | string;
 }
@@ -17,6 +18,7 @@ export interface OLAutoFill {
   description: string;
   series_name: string;
   series_position: string;
+  genre: string;
 }
 
 export function getCoverUrl(coverId: number): string {
@@ -24,7 +26,7 @@ export function getCoverUrl(coverId: number): string {
 }
 
 export async function searchOpenLibrary(query: string): Promise<OLSearchResult[]> {
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=7&fields=key,title,author_name,cover_i,series,series_number,number_of_pages_median,first_sentence`;
+  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=7&fields=key,title,author_name,cover_i,series,series_number,subject,number_of_pages_median,first_sentence`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('OL search failed');
   const data = await res.json();
@@ -46,6 +48,9 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any): OL
   const page_count = result.number_of_pages_median ? String(result.number_of_pages_median) : '';
   const series_name = result.series?.[0] ?? '';
   const series_position = result.series_number?.[0] ?? '';
+  
+  // Normalize genre from subjects
+  const genre = result.subject?.slice(0, 3).join(', ') ?? '';
 
   let description = '';
   if (workDetails?.description) {
@@ -62,5 +67,5 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any): OL
     }
   }
 
-  return { title, author, cover_url, page_count, description, series_name, series_position };
+  return { title, author, cover_url, page_count, description, series_name, series_position, genre };
 }

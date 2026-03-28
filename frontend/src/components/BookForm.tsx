@@ -9,6 +9,7 @@ const STATUSES: { value: BookStatus; label: string }[] = [
   { value: 'unread', label: 'Unread' },
   { value: 'reading', label: 'Reading' },
   { value: 'read', label: 'Read' },
+  { value: 'wishlist', label: 'Wishlist' },
 ];
 
 function compressImage(file: File): Promise<string> {
@@ -107,6 +108,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
         ...f,
         title:           filled.title     || f.title,
         author:          filled.author    || f.author,
+        genre:           filled.genre     || f.genre,
         cover_url:       filled.cover_url || f.cover_url,
         page_count:      filled.page_count     !== '' ? filled.page_count     : f.page_count,
         description:     filled.description    !== '' ? filled.description    : f.description,

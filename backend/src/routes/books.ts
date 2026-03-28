@@ -14,15 +14,32 @@ const SELECT_BOOK = `
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
   const q = req.query.q as string | undefined;
+  const status = req.query.status as string | undefined;
+  
+  let query = SELECT_BOOK;
+  const params: any[] = [];
+  const where: string[] = [];
+
   if (q && q.trim()) {
     const like = `%${q.trim()}%`;
-    res.json(await db.all(
-      `${SELECT_BOOK} WHERE b.title LIKE ? OR b.author LIKE ? ORDER BY b.created_at DESC`,
-      like, like
-    ));
-  } else {
-    res.json(await db.all(`${SELECT_BOOK} ORDER BY b.created_at DESC`));
+    where.push(`(b.title LIKE ? OR b.author LIKE ?)`);
+    params.push(like, like);
   }
+
+  if (status) {
+    where.push(`b.status = ?`);
+    params.push(status);
+  } else {
+    // Default: exclude wishlist from main list if no status specified
+    where.push(`b.status != 'wishlist'`);
+  }
+
+  if (where.length > 0) {
+    query += ` WHERE ` + where.join(' AND ');
+  }
+
+  query += ` ORDER BY b.created_at DESC`;
+  res.json(await db.all(query, ...params));
 }));
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
