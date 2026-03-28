@@ -58,9 +58,15 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
   const [olLoading, setOlLoading] = useState(false);
   const [olDropdownOpen, setOlDropdownOpen] = useState(false);
   const olSearchRef = useRef<HTMLDivElement>(null);
+  const olInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const set = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
+
+  // Auto-focus search input on mount
+  useEffect(() => {
+    olInputRef.current?.focus();
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -180,6 +186,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
         <div className="ol-search__input-row">
           <Search size={14} className="ol-search__icon" />
           <input
+            ref={olInputRef}
             className="form-input ol-search__input"
             value={olQuery}
             onChange={e => handleOlQueryChange(e.target.value)}
