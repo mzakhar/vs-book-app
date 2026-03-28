@@ -2,7 +2,7 @@ import { useState, FormEvent, useRef, useEffect } from 'react';
 import { ImageIcon, X, Search, Loader } from 'lucide-react';
 import { createBook, updateBook } from '../api';
 import type { Book, BookStatus } from '../types';
-import { searchOpenLibrary, fetchWorkDetails, normalizeAutoFill } from '../api/openLibrary';
+import { searchOpenLibrary, fetchWorkDetails, fetchEditions, normalizeAutoFill } from '../api/openLibrary';
 import type { OLSearchResult } from '../api/openLibrary';
 
 const STATUSES: { value: BookStatus; label: string }[] = [
@@ -100,10 +100,14 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     setOlLoading(true);
     try {
       let workDetails: any = null;
+      let editions: any[] = [];
       if (result.key) {
-        workDetails = await fetchWorkDetails(result.key);
+        [workDetails, editions] = await Promise.all([
+          fetchWorkDetails(result.key),
+          fetchEditions(result.key)
+        ]);
       }
-      const filled = normalizeAutoFill(result, workDetails);
+      const filled = normalizeAutoFill(result, workDetails, editions);
       setForm(f => ({
         ...f,
         title:           filled.title     || f.title,

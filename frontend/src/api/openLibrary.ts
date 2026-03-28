@@ -32,7 +32,6 @@ export async function searchOpenLibrary(query: string): Promise<OLSearchResult[]
   const data = await res.json();
   return data.docs ?? [];
 }
-
 export async function fetchWorkDetails(key: string): Promise<any> {
   // key is like "/works/OL12345W"
   const workKey = key.startsWith('/works/') ? key : `/works/${key}`;
@@ -41,20 +40,49 @@ export async function fetchWorkDetails(key: string): Promise<any> {
   return res.json();
 }
 
-export function normalizeAutoFill(result: OLSearchResult, workDetails?: any): OLAutoFill {
+export async function fetchEditions(workKey: string): Promise<any[]> {
+  const key = workKey.startsWith('/works/') ? workKey : `/works/${workKey}`;
+  const res = await fetch(`https://openlibrary.org${key}/editions.json?limit=5`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.entries ?? [];
+}
+
+export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, editions: any[] = []): OLAutoFill {
   const title = result.title ?? '';
   const author = result.author_name?.[0] ?? '';
   const cover_url = result.cover_i ? getCoverUrl(result.cover_i) : '';
   const page_count = result.number_of_pages_median ? String(result.number_of_pages_median) : '';
-  
+
   let series_name = result.series?.[0] ?? '';
   let series_position = result.series_number?.[0] ?? '';
 
   const subjects = result.subject || workDetails?.subjects || [];
   const desc = workDetails?.description?.value || workDetails?.description || '';
 
-  // 1. Try to find series info in subjects if missing (common in OL)
+  // 1. Check editions for series info (often more specific than work)
+  if (!series_name || !series_position) {
+    for (const ed of editions) {
+      if (ed.series) {
+        const edSeries = Array.isArray(ed.series) ? ed.series[0] : ed.series;
+        if (edSeries) {
+          const match = edSeries.match(/^(.*?)[,\s]+(?:book|#|v|part)?\s*(\d+(\.\d+)?)$/i);
+          if (match) {
+            if (!series_name) series_name = match[1].trim();
+            if (!series_position) series_position = match[2];
+          } else if (!series_name) {
+            series_name = edSeries.trim();
+          }
+        }
+      }
+      if (series_name && series_position) break;
+    }
+  }
+
+  // 2. Try to find series info in subjects if missing (common in OL)
   if (!series_name) {
+...
+
     for (const sub of subjects) {
       const match = sub.match(/\[series:(.*?)\]/i) || sub.match(/series:\s*(.*)/i);
       if (match) {
