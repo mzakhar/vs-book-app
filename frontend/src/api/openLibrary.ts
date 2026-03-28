@@ -46,11 +46,61 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any): OL
   const author = result.author_name?.[0] ?? '';
   const cover_url = result.cover_i ? getCoverUrl(result.cover_i) : '';
   const page_count = result.number_of_pages_median ? String(result.number_of_pages_median) : '';
-  const series_name = result.series?.[0] ?? '';
-  const series_position = result.series_number?.[0] ?? '';
   
-  // Normalize genre from subjects
-  const genre = result.subject?.slice(0, 3).join(', ') ?? '';
+  let series_name = result.series?.[0] ?? '';
+  let series_position = result.series_number?.[0] ?? '';
+
+  const subjects = result.subject || workDetails?.subjects || [];
+  const desc = workDetails?.description?.value || workDetails?.description || '';
+
+  // 1. Try to find series info in subjects if missing (common in OL)
+  if (!series_name) {
+    for (const sub of subjects) {
+      const match = sub.match(/\[series:(.*?)\]/i) || sub.match(/series:\s*(.*)/i);
+      if (match) {
+        series_name = match[1].replace(/[:_]/g, ' ').trim();
+        break;
+      }
+    }
+  }
+
+  // 2. Try to find series position in subjects, title, or description
+  if (series_name && !series_position) {
+    // Check subjects for #N or "Book N"
+    for (const sub of subjects) {
+      const posMatch = sub.match(/#(\d+(\.\d+)?)/) || sub.match(/book\s+(\d+(\.\d+)?)/i);
+      if (posMatch) {
+        series_position = posMatch[1];
+        break;
+      }
+    }
+    
+    // Check description for "book one", "first book", "book 1", etc.
+    if (!series_position && desc) {
+      const descMatch = desc.match(/book\s+(one|two|three|four|five|six|seven|eight|nine|ten)/i) ||
+                        desc.match(/(\d+)(?:st|nd|rd|th)\s+book/i) ||
+                        desc.match(/book\s+(\d+)/i);
+      if (descMatch) {
+        const map: Record<string, string> = { one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10' };
+        series_position = map[descMatch[1].toLowerCase()] || descMatch[1];
+      }
+    }
+  }
+
+  // 3. Fallback: Check title for (Series Name, #1) pattern
+  if (!series_name) {
+    const titleMatch = title.match(/\((.*?),\s*#?(\d+(\.\d+)?)\)/);
+    if (titleMatch) {
+      series_name = titleMatch[1];
+      series_position = titleMatch[2];
+    }
+  }
+  
+  // Normalize genre from subjects (excluding series tags)
+  const genre = subjects
+    ?.filter((s: string) => !s.toLowerCase().includes('series:'))
+    .slice(0, 3)
+    .join(', ') ?? '';
 
   let description = '';
   if (workDetails?.description) {

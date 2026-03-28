@@ -6,7 +6,7 @@ import { findOrCreateSeries } from './series';
 const router = Router();
 
 const SELECT_BOOK = `
-  SELECT b.*, s.name as series_name, GROUP_CONCAT(bg.genre) as genres
+  SELECT b.*, s.name as series_name, GROUP_CONCAT(DISTINCT bg.genre) as genres
   FROM books b
   LEFT JOIN series s ON s.id = b.series_id
   LEFT JOIN book_genres bg ON bg.book_id = b.id
@@ -84,27 +84,31 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 
 router.get('/stats', asyncHandler(async (_req: Request, res: Response) => {
   const db = await getDb();
-  const [counters, notesCount, byGenre, byRating, recent] = await Promise.all([
-    db.get(`
-      SELECT
-        COUNT(*) as total_books,
-        SUM(CASE WHEN status='unread'  THEN 1 ELSE 0 END) as unread,
-        SUM(CASE WHEN status='reading' THEN 1 ELSE 0 END) as reading,
-        SUM(CASE WHEN status='read'    THEN 1 ELSE 0 END) as read,
-        ROUND(AVG(CASE WHEN rating IS NOT NULL THEN rating END), 1) as avg_rating
-      FROM books
-    `),
-    db.get(`SELECT COUNT(*) as count FROM notes`),
-    db.all(`
-      SELECT genre, COUNT(*) as count
-      FROM book_genres GROUP BY genre ORDER BY count DESC LIMIT 10
-    `),
-    db.all(`
-      SELECT rating, COUNT(*) as count FROM books
-      WHERE rating IS NOT NULL GROUP BY rating ORDER BY rating
-    `),
-    db.all(`${SELECT_BOOK} ORDER BY b.created_at DESC LIMIT 5`),
-  ]);
+  
+  const counters = await db.get(`
+    SELECT
+      COUNT(*) as total_books,
+      SUM(CASE WHEN status='unread'  THEN 1 ELSE 0 END) as unread,
+      SUM(CASE WHEN status='reading' THEN 1 ELSE 0 END) as reading,
+      SUM(CASE WHEN status='read'    THEN 1 ELSE 0 END) as read,
+      ROUND(AVG(CASE WHEN rating IS NOT NULL THEN rating END), 1) as avg_rating
+    FROM books
+  `);
+  
+  const notesCount = await db.get(`SELECT COUNT(*) as count FROM notes`);
+  
+  const byGenre = await db.all(`
+    SELECT genre, COUNT(*) as count
+    FROM book_genres GROUP BY genre ORDER BY count DESC LIMIT 10
+  `);
+  
+  const byRating = await db.all(`
+    SELECT rating, COUNT(*) as count FROM books
+    WHERE rating IS NOT NULL GROUP BY rating ORDER BY rating
+  `);
+  
+  const recent = await db.all(`${SELECT_BOOK} ${GROUP_BY_BOOK} ORDER BY b.created_at DESC LIMIT 5`);
+
   res.json({
     total_books: counters.total_books ?? 0,
     unread:      counters.unread ?? 0,
