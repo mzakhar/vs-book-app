@@ -2,13 +2,14 @@ import { useState, FormEvent, useRef, useEffect } from 'react';
 import { ImageIcon, X, Search, Loader } from 'lucide-react';
 import { createBook, updateBook } from '../api';
 import type { Book, BookStatus } from '../types';
-import { searchOpenLibrary, fetchWorkDetails, normalizeAutoFill } from '../api/openLibrary';
+import { searchOpenLibrary, fetchWorkDetails, fetchEditions, normalizeAutoFill } from '../api/openLibrary';
 import type { OLSearchResult } from '../api/openLibrary';
 
 const STATUSES: { value: BookStatus; label: string }[] = [
   { value: 'unread', label: 'Unread' },
   { value: 'reading', label: 'Reading' },
   { value: 'read', label: 'Read' },
+  { value: 'wishlist', label: 'Wishlist' },
 ];
 
 function compressImage(file: File): Promise<string> {
@@ -41,7 +42,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
   const [form, setForm] = useState({
     title:           existing?.title           ?? '',
     author:          existing?.author          ?? '',
-    genre:           existing?.genre           ?? '',
+    genre:           (existing?.genres || existing?.genre || '') as string,
     status:          existing?.status          ?? 'unread' as BookStatus,
     rating:          existing?.rating          ? String(existing.rating) : '',
     cover_url:       existing?.cover_url       ?? '',
@@ -99,14 +100,19 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     setOlLoading(true);
     try {
       let workDetails: any = null;
+      let editions: any[] = [];
       if (result.key) {
-        workDetails = await fetchWorkDetails(result.key);
+        [workDetails, editions] = await Promise.all([
+          fetchWorkDetails(result.key),
+          fetchEditions(result.key)
+        ]);
       }
-      const filled = normalizeAutoFill(result, workDetails);
+      const filled = normalizeAutoFill(result, workDetails, editions);
       setForm(f => ({
         ...f,
         title:           filled.title     || f.title,
         author:          filled.author    || f.author,
+        genre:           filled.genre     || f.genre,
         cover_url:       filled.cover_url || f.cover_url,
         page_count:      filled.page_count     !== '' ? filled.page_count     : f.page_count,
         description:     filled.description    !== '' ? filled.description    : f.description,
@@ -144,7 +150,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
       const payload = {
         title:           form.title.trim(),
         author:          form.author.trim() || undefined,
-        genre:           form.genre.trim() || undefined,
+        genres:          form.genre.split(',').map(g => g.trim()).filter(g => g !== ''),
         status:          form.status,
         rating:          form.rating ? Number(form.rating) : undefined,
         cover_url:       form.cover_url.trim() || undefined,

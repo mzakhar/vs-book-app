@@ -111,7 +111,9 @@ export default function Dashboard() {
                 {book.author && <p className="recent-item__author">{book.author}</p>}
               </div>
               <span className={`status-badge status-badge--${book.status}`}>
-                {book.status === 'unread' ? 'Unread' : book.status === 'reading' ? 'Reading' : 'Read'}
+                {book.status === 'unread' ? 'Unread' : 
+                 book.status === 'reading' ? 'Reading' : 
+                 book.status === 'read' ? 'Read' : 'Wishlist'}
               </span>
             </Link>
           ))}

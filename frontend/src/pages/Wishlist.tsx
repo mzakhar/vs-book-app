@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown } from 'lucide-react';
-import { getBooks, deleteBook } from '../api';
+import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown, Archive } from 'lucide-react';
+import { getBooks, deleteBook, updateBook } from '../api';
 import { Book, BookStatus, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
@@ -36,31 +36,20 @@ function StatusBadge({ status }: { status: BookStatus }) {
   return <span className={`status-badge status-badge--${status}`}>{STATUS_LABEL[status]}</span>;
 }
 
-function StarRating({ rating }: { rating?: number }) {
-  if (!rating) return null;
-  return (
-    <span className="star-rating">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star key={i} size={12} fill={i < rating ? 'currentColor' : 'none'} />
-      ))}
-    </span>
-  );
-}
-
-export default function BookList() {
+export default function Wishlist() {
   const { toast } = useToast();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState<SortKey>('author');
+  const [sort, setSort] = useState<SortKey>('date');
   const [view, setView] = useState<ViewMode>('list');
   const [showAdd, setShowAdd] = useState(false);
 
   const load = useCallback(async (q?: string) => {
     try {
-      setBooks(await getBooks(q));
+      setBooks(await getBooks(q, 'wishlist'));
     } catch {
-      toast('error', 'Failed to load books.');
+      toast('error', 'Failed to load wishlist.');
     } finally {
       setLoading(false);
     }
@@ -77,13 +66,25 @@ export default function BookList() {
   const handleDelete = async (e: React.MouseEvent, book: Book) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm(`Delete "${book.title}"? This cannot be undone.`)) return;
+    if (!confirm(`Remove "${book.title}" from wishlist?`)) return;
     try {
       await deleteBook(book.id);
       setBooks(bs => bs.filter(b => b.id !== book.id));
-      toast('success', 'Book deleted.');
+      toast('success', 'Removed from wishlist.');
     } catch {
-      toast('error', 'Failed to delete book.');
+      toast('error', 'Failed to remove book.');
+    }
+  };
+
+  const handleMoveToLibrary = async (e: React.MouseEvent, book: Book) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await updateBook(book.id, { status: 'unread' });
+      setBooks(bs => bs.filter(b => b.id !== book.id));
+      toast('success', 'Moved to library.');
+    } catch {
+      toast('error', 'Failed to move book.');
     }
   };
 
@@ -91,8 +92,8 @@ export default function BookList() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>My Library</h1>
-          <p className="page-subtitle">{books.length} book{books.length !== 1 ? 's' : ''}</p>
+          <h1>Wishlist</h1>
+          <p className="page-subtitle">{books.length} book{books.length !== 1 ? 's' : ''} I want to read</p>
         </div>
         <div className="page-header__actions">
           <div className="view-toggle">
@@ -106,7 +107,7 @@ export default function BookList() {
             >⊞ Gallery</button>
           </div>
           <button className="btn btn--primary" onClick={() => setShowAdd(true)}>
-            <Plus size={14} /> Add Book
+            <Plus size={14} /> Add to Wishlist
           </button>
         </div>
       </div>
@@ -118,7 +119,7 @@ export default function BookList() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by title or author…"
+            placeholder="Search wishlist…"
           />
         </div>
         <div className="sort-control">
@@ -145,35 +146,53 @@ export default function BookList() {
         </div>
       ) : books.length === 0 ? (
         <div className="empty-state">
-          <BookOpen size={40} />
-          <p>{search ? 'No books match your search.' : 'No books yet. Add your first book!'}</p>
+          <Star size={40} />
+          <p>{search ? 'No books match your search.' : 'Your wishlist is empty.'}</p>
           {!search && (
             <button className="btn btn--primary" onClick={() => setShowAdd(true)}>
-              <Plus size={14} /> Add Book
+              <Plus size={14} /> Add to Wishlist
             </button>
           )}
         </div>
       ) : view === 'gallery' ? (
         <div className="book-gallery">
           {sortBooks(books, sort).map(book => (
-            <Link key={book.id} to={`/books/${book.id}`} className="book-gallery__item">
-              <div className="book-gallery__cover-wrap">
-                {book.cover_url ? (
-                  <img
-                    src={book.cover_url}
-                    alt={book.title}
-                    className="book-gallery__cover"
-                    onError={e => { (e.currentTarget as HTMLImageElement).src = '/placeholder-cover.png'; }}
-                  />
-                ) : (
-                  <div className="book-gallery__placeholder">
-                    <BookOpen size={28} />
-                    <span>{book.title}</span>
-                  </div>
-                )}
-              </div>
+            <div key={book.id} className="book-gallery__item book-gallery__item--wishlist">
+               <Link to={`/books/${book.id}`} className="book-gallery__cover-link">
+                <div className="book-gallery__cover-wrap">
+                  {book.cover_url ? (
+                    <img
+                      src={book.cover_url}
+                      alt={book.title}
+                      className="book-gallery__cover"
+                      onError={e => { (e.currentTarget as HTMLImageElement).src = '/placeholder-cover.png'; }}
+                    />
+                  ) : (
+                    <div className="book-gallery__placeholder">
+                      <BookOpen size={28} />
+                      <span>{book.title}</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
               <div className="book-gallery__title">{book.title}</div>
-            </Link>
+              <div className="book-gallery__actions">
+                 <button 
+                  className="btn btn--icon btn--ghost" 
+                  onClick={e => handleMoveToLibrary(e, book)}
+                  title="Move to Library"
+                >
+                  <Archive size={14} />
+                </button>
+                <button 
+                  className="btn btn--icon btn--ghost" 
+                  onClick={e => handleDelete(e, book)}
+                  title="Remove"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
@@ -196,27 +215,38 @@ export default function BookList() {
                     <span key={g} className="tag">{g}</span>
                   ))}
                 </div>
-                <StarRating rating={book.rating} />
               </div>
-              <button
-                className="book-card__delete btn btn--icon btn--ghost"
-                onClick={e => handleDelete(e, book)}
-                title="Delete book"
-              >
-                <Trash2 size={14} />
-              </button>
+              <div className="book-card__actions" style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  className="btn btn--icon btn--ghost"
+                  onClick={e => handleMoveToLibrary(e, book)}
+                  title="Move to Library"
+                >
+                  <Archive size={14} />
+                </button>
+                <button
+                  className="btn btn--icon btn--ghost"
+                  onClick={e => handleDelete(e, book)}
+                  title="Remove from wishlist"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </Link>
           ))}
         </div>
       )}
 
       {showAdd && (
-        <Modal title="Add Book" onClose={() => setShowAdd(false)} size="md">
+        <Modal title="Add to Wishlist" onClose={() => setShowAdd(false)} size="md">
           <BookForm
+            existing={({ status: 'wishlist' } as any)}
             onSave={book => {
-              setBooks(bs => [book, ...bs]);
+              if (book.status === 'wishlist') {
+                setBooks(bs => [book, ...bs]);
+              }
               setShowAdd(false);
-              toast('success', 'Book added.');
+              toast('success', book.status === 'wishlist' ? 'Added to wishlist.' : 'Added to library.');
             }}
             onCancel={() => setShowAdd(false)}
           />

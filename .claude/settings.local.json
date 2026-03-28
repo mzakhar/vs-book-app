@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(npx tsc:*)",
+      "Bash(gh repo:*)",
+      "Bash(gh issue:*)",
+      "Bash(winget list:*)",
+      "Bash(curl:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth:*)",
+      "Bash(export:*)",
+      "Bash(bash:*)",
+      "Bash(ssh mzakhar@homeserver:*)",
+      "Bash(choco install:*)",
+      "Bash(scoop install:*)",
+      "Bash(wsl:*)",
+      "Bash(node:*)"
+    ]
+  }
+}
