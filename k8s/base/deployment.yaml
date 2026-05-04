@@ -16,7 +16,7 @@ spec:
       containers:
         - name: app
           image: ghcr.io/mzakhar/vs-book-app:main
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: NODE_ENV
               value: production
@@ -47,8 +47,6 @@ spec:
               mountPath: /data
       securityContext:
         fsGroup: 1000
-      imagePullSecrets:
-        - name: ghcr-creds
       volumes:
         - name: data
           persistentVolumeClaim:
