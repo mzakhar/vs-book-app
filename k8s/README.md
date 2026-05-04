@@ -23,7 +23,7 @@ If Flux is not already installed on the cluster, bootstrap it against this repos
 flux bootstrap github \
   --owner=mzakhar \
   --repository=vs-book-app \
-  --branch=feature/glassmorphism-themes \
+  --branch=main \
   --path=k8s/flux \
   --private
 ```
