@@ -97,3 +97,64 @@ No code changes should start until this spec is revised against your answers and
 - [x] Cluster deployment: added k3s manifests for a namespace, single-replica deployment, PVC, service, Traefik middleware, and ingress at `/books/`.
 - [x] GitOps integration: added a Flux `Kustomization` manifest and a repo-local `k8s/` layout for Git-managed deployment state.
 - [x] Added cluster setup notes covering the GHCR pull secret, image path replacement, and the `/books/` routing model.
+- [x] Added Flux bootstrap, cutover, rollback, and deployment update runbooks.
+
+## Runtime Configuration Contract
+- `NODE_ENV=production`
+- `PORT=3000`
+- `DB_PATH=/data/books.db`
+- The app must have write access to the parent directory of `DB_PATH`.
+- Persistence must cover the entire database directory so SQLite WAL sidecar files survive restarts.
+
+## Flux Bootstrap Plan
+1. Install Flux on the k3s cluster if it is not already present.
+2. Bootstrap Flux against this repository and branch.
+3. Point Flux at the repo path containing the deployment manifests.
+4. Create the `ghcr-creds` pull secret in the `vs-book-app` namespace before the first reconcile.
+5. Confirm the `vs-book-app` `Kustomization` becomes ready before cutover.
+
+### Example Bootstrap Command
+```sh
+flux bootstrap github \
+  --owner=mzakhar \
+  --repository=vs-book-app \
+  --branch=feature/glassmorphism-themes \
+  --path=k8s/flux \
+  --private
+```
+
+## Deployment Update Flow
+1. Merge or push deployment changes to the branch Flux watches.
+2. Let GitHub Actions publish a new immutable GHCR image.
+3. Update `k8s/base/deployment.yaml` to the desired tag or digest instead of relying on `:main` for long-term operations.
+4. Commit that manifest change.
+5. Wait for Flux to reconcile, then confirm the deployment is ready and the app is reachable at `/books/`.
+
+## Cutover Runbook
+1. Ensure the current non-containerized deployment remains available during cluster bring-up.
+2. Bootstrap Flux and confirm `flux-system` is healthy.
+3. Create the `vs-book-app` namespace and `ghcr-creds` secret if Flux is not creating the namespace first.
+4. Apply or reconcile the `k8s/base` manifests.
+5. Confirm the PVC binds successfully and the pod reaches ready state.
+6. Browse to `http://<server-ip>/books/` and verify the UI loads.
+7. Exercise the critical flows:
+   - list books
+   - create or edit a book
+   - create or edit a note
+   - verify data persists after a pod restart
+8. Switch LAN traffic from the legacy nginx/systemd deployment to Traefik only after the Kubernetes deployment is verified.
+9. Keep the old deployment intact until persistence and routing are both confirmed.
+
+## Rollback Runbook
+1. If the new deployment fails before cutover, keep serving traffic from the legacy systemd/nginx deployment and fix the cluster manifests separately.
+2. If the new deployment fails after cutover, restore LAN traffic to the legacy deployment immediately.
+3. Revert the manifest or image tag change in Git so Flux reconciles back to the last known good state.
+4. If the failure is image-specific, pin the deployment to the last known good digest.
+5. Do not delete the PVC during rollback unless you intentionally want to discard SQLite data.
+6. After rollback, inspect pod logs, Flux events, and PVC mount behavior before attempting another cutover.
+
+## Residual Risks
+- `local-path` storage keeps the workload effectively tied to one node.
+- SQLite remains a single-writer design and is not suitable for horizontal scaling.
+- The current manifests assume Traefik CRDs and the default k3s ingress class are present.
+- Private GHCR access depends on a valid pull secret lifecycle outside this repo.
