@@ -9,6 +9,7 @@ import { getDb } from './database';
 const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../books.db');
 
 if (!IS_PROD) {
   app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'] }));
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/books', booksRouter);
 app.use('/api/notes', notesRouter);
 app.use('/api/series', seriesRouter);
+app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 if (IS_PROD) {
   const distPath = path.join(__dirname, '../../frontend/dist');
@@ -33,7 +35,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 getDb().then(() => {
   app.listen(PORT, () => {
-    console.log(`Books API running on http://localhost:${PORT}`);
+    console.log(`Books API running on http://localhost:${PORT} using DB ${DB_PATH}`);
   });
 }).catch(err => {
   console.error('Failed to initialise database:', err);
