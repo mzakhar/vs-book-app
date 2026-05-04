@@ -532,58 +532,58 @@
 // ── Theme: Glassmorphism Light ─────────────────────────────────────────────
 [data-theme="glass-light"] {
   --bg-base:     transparent;
-  --bg-surface:  rgba(255, 255, 255, 0.4);
-  --bg-card:     rgba(255, 255, 255, 0.3);
-  --bg-elevated: rgba(255, 255, 255, 0.5);
-  --bg-hover:    rgba(255, 255, 255, 0.6);
+  --bg-surface:  rgba(255, 255, 255, 0.3);
+  --bg-card:     rgba(255, 255, 255, 0.4);
+  --bg-elevated: rgba(255, 255, 255, 0.6);
+  --bg-hover:    rgba(255, 255, 255, 0.8);
 
-  --glass-blur:   blur(12px);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  --glass-blur:   blur(16px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 
-  --border:       rgba(255, 255, 255, 0.3);
+  --border:       rgba(255, 255, 255, 0.4);
   --border-light: rgba(255, 255, 255, 0.2);
-  --btn-secondary-hover-border: rgba(255, 255, 255, 0.5);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.8);
 
-  --accent:        #2563eb;
-  --accent-hover:  #1d4ed8;
-  --accent-muted:  rgba(37, 99, 235, 0.15);
-  --accent-subtle: rgba(37, 99, 235, 0.08);
-  --accent-focus:  rgba(37, 99, 235, 0.2);
+  --accent:        #4f46e5;
+  --accent-hover:  #4338ca;
+  --accent-muted:  rgba(79, 70, 229, 0.2);
+  --accent-subtle: rgba(79, 70, 229, 0.1);
+  --accent-focus:  rgba(79, 70, 229, 0.25);
 
-  --text-1: #0f1923;
-  --text-2: #334a5e;
-  --text-3: #5a6a7e;
-  --text-4: #8099b0;
+  --text-1: #1e293b;
+  --text-2: #475569;
+  --text-3: #64748b;
+  --text-4: #94a3b8;
 
-  --success:    #2e7d52;
-  --success-bg: rgba(46, 125, 82, 0.1);
-  --danger:     #c0392b;
-  --danger-bg:  rgba(192, 57, 43, 0.08);
-  --danger-border:   rgba(192, 57, 43, 0.25);
-  --danger-hover-bg: rgba(192, 57, 43, 0.15);
+  --success:    #10b981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --danger:     #ef4444;
+  --danger-bg:  rgba(239, 68, 68, 0.08);
+  --danger-border:   rgba(239, 68, 68, 0.25);
+  --danger-hover-bg: rgba(239, 68, 68, 0.15);
 
-  --toast-success-bg:     #e8f5ee;
-  --toast-error-bg:       #fce8e8;
-  --toast-info-bg:        #e8f0fc;
-  --toast-success-border: rgba(46, 125, 82, 0.3);
-  --toast-error-border:   rgba(192, 57, 43, 0.3);
-  --toast-info-border:    rgba(37, 99, 235, 0.3);
+  --toast-success-bg:     rgba(255, 255, 255, 0.9);
+  --toast-error-bg:       rgba(255, 255, 255, 0.9);
+  --toast-info-bg:        rgba(255, 255, 255, 0.9);
+  --toast-success-border: #10b981;
+  --toast-error-border:   #ef4444;
+  --toast-info-border:    #4f46e5;
 
-  --modal-overlay: rgba(255, 255, 255, 0.2);
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23334a5e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --modal-overlay: rgba(255, 255, 255, 0.3);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 
-  --status-unread-color: #334a5e;
-  --status-unread-bg:    rgba(255, 255, 255, 0.2);
-  --status-unread-border: rgba(255, 255, 255, 0.4);
-  --status-reading-color: #2563eb;
-  --status-reading-bg:    rgba(37, 99, 235, 0.1);
-  --status-reading-border: rgba(37, 99, 235, 0.3);
-  --status-read-color: #2e7d52;
-  --status-read-bg:    rgba(46, 125, 82, 0.1);
-  --status-read-border: rgba(46, 125, 82, 0.3);
+  --status-unread-color: #475569;
+  --status-unread-bg:    rgba(255, 255, 255, 0.5);
+  --status-unread-border: rgba(255, 255, 255, 0.8);
+  --status-reading-color: #4f46e5;
+  --status-reading-bg:    rgba(79, 70, 229, 0.1);
+  --status-reading-border: rgba(79, 70, 229, 0.3);
+  --status-read-color: #059669;
+  --status-read-bg:    rgba(5, 150, 105, 0.1);
+  --status-read-border: rgba(5, 150, 105, 0.3);
 
-  --star-color: #c07a10;
+  --star-color: #f59e0b;
 }
 
 // ── Theme: Glassmorphism Rich ──────────────────────────────────────────────
