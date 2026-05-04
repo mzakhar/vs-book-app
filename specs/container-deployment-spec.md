@@ -118,7 +118,7 @@ No code changes should start until this spec is revised against your answers and
 flux bootstrap github \
   --owner=mzakhar \
   --repository=vs-book-app \
-  --branch=feature/glassmorphism-themes \
+  --branch=main \
   --path=k8s/flux \
   --private
 ```
