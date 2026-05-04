@@ -1,14 +1,22 @@
 import { open, Database } from 'sqlite';
 import sqlite3 from 'sqlite3';
+import fs from 'fs/promises';
 import path from 'path';
 
 let _db: Database | null = null;
 
+function getDatabasePath(): string {
+  return process.env.DB_PATH || path.join(__dirname, '../../books.db');
+}
+
 export async function getDb(): Promise<Database> {
   if (_db) return _db;
 
+  const dbPath = getDatabasePath();
+  await fs.mkdir(path.dirname(dbPath), { recursive: true });
+
   _db = await open({
-    filename: path.join(__dirname, '../../books.db'),
+    filename: dbPath,
     driver: sqlite3.Database,
   });
 

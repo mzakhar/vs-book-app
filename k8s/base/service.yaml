@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vs-book-app
+  namespace: vs-book-app
+spec:
+  selector:
+    app: vs-book-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

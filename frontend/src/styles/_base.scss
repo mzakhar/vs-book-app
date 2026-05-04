@@ -10,6 +10,11 @@ html {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  // Glass default variables
+  --glass-blur: none;
+  --glass-border: none;
+  --glass-shadow: none;
 }
 
 body {
@@ -18,6 +23,123 @@ body {
   color: $text-1;
   line-height: 1.5;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+// ── Glass Theme Background System ─────────────────────────────────────────
+
+.glass-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+}
+
+.glass-grain {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.glass-blobs {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+
+  &__item {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(10px); 
+    opacity: 0.9;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: blob-float 20s ease-in-out infinite alternate;
+
+    &--1 { 
+      width: 450px; height: 450px; top: -100px; left: -100px; 
+      background: radial-gradient(circle at center, #7c3aed, #4f46e5); 
+      animation-duration: 25s; 
+    }
+    &--2 { 
+      width: 600px; height: 600px; bottom: -150px; right: -100px; 
+      background: radial-gradient(circle at center, #2563eb, #0891b2); 
+      animation-duration: 30s; animation-delay: -5s; 
+    }
+    &--3 { 
+      width: 350px; height: 350px; top: 15%; right: 10%; 
+      background: radial-gradient(circle at center, #db2777, #9d174d); 
+      animation-duration: 22s; animation-delay: -10s; 
+    }
+    &--4 { 
+      width: 250px; height: 250px; bottom: 20%; left: 30%; 
+      background: radial-gradient(circle at center, #f59e0b, #d97706); 
+      animation-duration: 28s; animation-delay: -15s; 
+    }
+  }
+}
+
+html[data-theme^="glass"] {
+  background-color: #000; // Base black for depth
+  
+  body {
+    background-color: transparent !important;
+  }
+  
+  .glass-bg, .glass-blobs, .glass-grain {
+    display: block;
+  }
+  
+  .glass-bg {
+    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+}
+
+// Light glass specific overrides: Transparent background to see blobs
+html[data-theme="glass-light"] {
+  background-color: #f0f9ff;
+  
+  .glass-bg {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    opacity: 0.3; // Much more transparent base
+  }
+  
+  .glass-blobs__item {
+    opacity: 0.8;
+    filter: blur(5px); // Very crisp blobs
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    
+    &--1 { background: radial-gradient(circle at center, #ff9a9e, #fad0c4); }
+    &--2 { background: radial-gradient(circle at center, #a1c4fd, #c2e9fb); }
+    &--3 { background: radial-gradient(circle at center, #f6d365, #fda085); }
+    &--4 { background: radial-gradient(circle at center, #84fab0, #8fd3f4); }
+  }
+  
+  .glass-grain {
+    opacity: 0.2;
+  }
+}
+
+@keyframes blob-float {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%  { transform: translate(60px, 80px) scale(1.15) rotate(10deg); }
+  66%  { transform: translate(-40px, 40px) scale(0.9) rotate(-10deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 a {
