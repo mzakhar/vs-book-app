@@ -10,8 +10,7 @@ html {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  // Glass default variables
+
   --glass-blur: none;
   --glass-border: none;
   --glass-shadow: none;
@@ -27,113 +26,208 @@ body {
   overflow-x: hidden;
 }
 
-// ── Glass Theme Background System ─────────────────────────────────────────
-
-.glass-bg {
-  display: none;
+.glass-scene {
   position: fixed;
   inset: 0;
-  z-index: -3;
-  pointer-events: none;
-}
-
-.glass-grain {
   display: none;
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.4;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
-.glass-blobs {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: -2;
   overflow: hidden;
   pointer-events: none;
+  z-index: -3;
+}
 
-  &__item {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(10px); 
-    opacity: 0.9;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    animation: blob-float 20s ease-in-out infinite alternate;
+.glass-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--blob-bg);
+  background-size: 180% 180%;
+  animation: gradient 18s ease infinite;
+}
 
-    &--1 { 
-      width: 450px; height: 450px; top: -100px; left: -100px; 
-      background: radial-gradient(circle at center, #7c3aed, #4f46e5); 
-      animation-duration: 25s; 
-    }
-    &--2 { 
-      width: 600px; height: 600px; bottom: -150px; right: -100px; 
-      background: radial-gradient(circle at center, #2563eb, #0891b2); 
-      animation-duration: 30s; animation-delay: -5s; 
-    }
-    &--3 { 
-      width: 350px; height: 350px; top: 15%; right: 10%; 
-      background: radial-gradient(circle at center, #db2777, #9d174d); 
-      animation-duration: 22s; animation-delay: -10s; 
-    }
-    &--4 { 
-      width: 250px; height: 250px; bottom: 20%; left: 30%; 
-      background: radial-gradient(circle at center, #f59e0b, #d97706); 
-      animation-duration: 28s; animation-delay: -15s; 
-    }
+.glass-filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.glass-goo {
+  position: absolute;
+  inset: 0;
+  filter: url(#books-glass-goo);
+}
+
+.glass-circle {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.9;
+  filter: blur(14px);
+
+  &--a {
+    background: radial-gradient(circle at 35% 30%, var(--blob-a-light) 0%, var(--blob-a-mid) 48%, var(--blob-a-dark) 100%);
   }
+
+  &--b {
+    background: radial-gradient(circle at 35% 30%, var(--blob-b-light) 0%, var(--blob-b-mid) 48%, var(--blob-b-dark) 100%);
+  }
+
+  &--c {
+    background: radial-gradient(circle at 35% 30%, var(--blob-c-light) 0%, var(--blob-c-mid) 48%, var(--blob-c-dark) 100%);
+  }
+
+  &--1  { width: 360px; height: 360px; top: -80px; left: -80px; animation: glass-drift-1 74s ease-in-out infinite alternate; }
+  &--2  { width: 220px; height: 220px; top: 18%; left: 6%; animation: glass-drift-2 56s ease-in-out infinite alternate; animation-delay: -14s; }
+  &--3  { width: 145px; height: 145px; top: 42%; left: 4%; animation: glass-drift-3 44s ease-in-out infinite alternate; animation-delay: -28s; }
+  &--4  { width: 205px; height: 205px; bottom: 8%; left: 12%; animation: glass-drift-4 62s ease-in-out infinite alternate; animation-delay: -40s; }
+  &--5  { width: 95px; height: 95px; top: 58%; left: 28%; animation: glass-drift-5 36s ease-in-out infinite alternate; animation-delay: -6s; }
+  &--6  { width: 340px; height: 340px; top: -70px; right: -70px; animation: glass-drift-6 80s ease-in-out infinite alternate; animation-delay: -22s; }
+  &--7  { width: 215px; height: 215px; top: 10%; left: 38%; animation: glass-drift-7 54s ease-in-out infinite alternate; animation-delay: -10s; }
+  &--8  { width: 160px; height: 160px; top: 40%; right: 6%; animation: glass-drift-8 46s ease-in-out infinite alternate; animation-delay: -32s; }
+  &--9  { width: 200px; height: 200px; bottom: 10%; right: 4%; animation: glass-drift-9 66s ease-in-out infinite alternate; animation-delay: -48s; }
+  &--10 { width: 88px; height: 88px; top: 28%; right: 26%; animation: glass-drift-10 32s ease-in-out infinite alternate; animation-delay: -18s; }
+  &--11 { width: 310px; height: 310px; bottom: -70px; left: 33%; animation: glass-drift-11 70s ease-in-out infinite alternate; animation-delay: -35s; }
+  &--12 { width: 185px; height: 185px; top: 52%; right: 20%; animation: glass-drift-12 52s ease-in-out infinite alternate; animation-delay: -20s; }
+  &--13 { width: 130px; height: 130px; top: 62%; left: 50%; animation: glass-drift-13 42s ease-in-out infinite alternate; animation-delay: -8s; }
+  &--14 { width: 82px; height: 82px; top: 20%; left: 58%; animation: glass-drift-14 34s ease-in-out infinite alternate; animation-delay: -26s; }
+  &--15 { width: 72px; height: 72px; top: 35%; left: 44%; animation: glass-drift-15 28s ease-in-out infinite alternate; animation-delay: -9s; }
+  &--16 { width: 68px; height: 68px; bottom: 28%; left: 38%; animation: glass-drift-16 26s ease-in-out infinite alternate; animation-delay: -4s; }
+  &--17 { width: 78px; height: 78px; top: 32%; left: 22%; animation: glass-drift-17 30s ease-in-out infinite alternate; animation-delay: -16s; }
+  &--18 { width: 65px; height: 65px; bottom: 32%; right: 30%; animation: glass-drift-18 24s ease-in-out infinite alternate; animation-delay: -11s; }
+  &--19 { width: 80px; height: 80px; top: 48%; left: 52%; animation: glass-drift-19 29s ease-in-out infinite alternate; animation-delay: -20s; }
+  &--20 { width: 70px; height: 70px; top: 66%; right: 14%; animation: glass-drift-20 27s ease-in-out infinite alternate; animation-delay: -3s; }
+  &--21 { width: 62px; height: 62px; bottom: 18%; left: 52%; animation: glass-drift-21 25s ease-in-out infinite alternate; animation-delay: -13s; }
+  &--22 { width: 74px; height: 74px; top: 8%; left: 28%; animation: glass-drift-22 31s ease-in-out infinite alternate; animation-delay: -7s; }
 }
 
 html[data-theme^="glass"] {
-  background-color: #000; // Base black for depth
-  
+  background: var(--blob-bg);
+
   body {
-    background-color: transparent !important;
+    background: transparent !important;
   }
-  
-  .glass-bg, .glass-blobs, .glass-grain {
+
+  .glass-scene {
     display: block;
   }
-  
-  .glass-bg {
-    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-  }
 }
 
-// Light glass specific overrides: Transparent background to see blobs
 html[data-theme="glass-light"] {
-  background-color: #f0f9ff;
-  
   .glass-bg {
-    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
-    opacity: 0.3; // Much more transparent base
+    opacity: 0.9;
   }
-  
-  .glass-blobs__item {
-    opacity: 0.8;
-    filter: blur(5px); // Very crisp blobs
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    
-    &--1 { background: radial-gradient(circle at center, #ff9a9e, #fad0c4); }
-    &--2 { background: radial-gradient(circle at center, #a1c4fd, #c2e9fb); }
-    &--3 { background: radial-gradient(circle at center, #f6d365, #fda085); }
-    &--4 { background: radial-gradient(circle at center, #84fab0, #8fd3f4); }
-  }
-  
-  .glass-grain {
-    opacity: 0.2;
+
+  .glass-circle {
+    opacity: 0.82;
+    filter: blur(10px);
   }
 }
 
-@keyframes blob-float {
-  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-  33%  { transform: translate(60px, 80px) scale(1.15) rotate(10deg); }
-  66%  { transform: translate(-40px, 40px) scale(0.9) rotate(-10deg); }
-  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+@keyframes glass-drift-1 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(240px, 210px); }
+}
+
+@keyframes glass-drift-2 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(210px, -170px); }
+}
+
+@keyframes glass-drift-3 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(270px, 130px); }
+}
+
+@keyframes glass-drift-4 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(230px, -200px); }
+}
+
+@keyframes glass-drift-5 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(250px, -230px); }
+}
+
+@keyframes glass-drift-6 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-220px, 190px); }
+}
+
+@keyframes glass-drift-7 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-180px, 220px); }
+}
+
+@keyframes glass-drift-8 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-250px, 170px); }
+}
+
+@keyframes glass-drift-9 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-200px, -170px); }
+}
+
+@keyframes glass-drift-10 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-170px, 200px); }
+}
+
+@keyframes glass-drift-11 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-90px, -230px); }
+}
+
+@keyframes glass-drift-12 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-220px, -160px); }
+}
+
+@keyframes glass-drift-13 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-200px, -150px); }
+}
+
+@keyframes glass-drift-14 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(180px, 200px); }
+}
+
+@keyframes glass-drift-15 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-160px, 140px); }
+}
+
+@keyframes glass-drift-16 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(150px, -180px); }
+}
+
+@keyframes glass-drift-17 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(190px, -130px); }
+}
+
+@keyframes glass-drift-18 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-170px, -150px); }
+}
+
+@keyframes glass-drift-19 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-140px, 160px); }
+}
+
+@keyframes glass-drift-20 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-180px, -120px); }
+}
+
+@keyframes glass-drift-21 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(160px, -170px); }
+}
+
+@keyframes glass-drift-22 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(140px, 190px); }
 }
 
 @keyframes gradient {
