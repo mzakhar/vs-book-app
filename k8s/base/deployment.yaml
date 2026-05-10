@@ -47,8 +47,6 @@ spec:
               mountPath: /data
       securityContext:
         fsGroup: 1000
-      imagePullSecrets:
-        - name: ghcr-creds
       volumes:
         - name: data
           persistentVolumeClaim:
