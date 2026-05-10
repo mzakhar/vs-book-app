@@ -3,6 +3,12 @@
 ## Goal
 Make `Vs-book-app` deployable as a containerized workload on a home Ubuntu server running k3s, with persistent SQLite storage, repeatable builds, private image publishing to GHCR, and a GitOps-friendly deployment path.
 
+## Deployment Status
+- Current production/home-lab target is live on `themachine` at `http://192.168.1.3/books/`.
+- `themachine` is configured to pull the app from GitHub.
+- The deployed model is a single-replica k3s workload with Traefik routing at `/books/` and persistent SQLite storage outside the container lifecycle.
+- Operational note: a merged app change is not by itself a guaranteed cluster rollout when the deployment manifest still references the same mutable container tag.
+
 ## Current State
 - App is split into `frontend/` and `backend/`.
 - Production today is non-containerized: build locally, copy artifacts to a server, run Node via `systemd`, and proxy `/books/` through nginx.
@@ -98,6 +104,7 @@ No code changes should start until this spec is revised against your answers and
 - [x] GitOps integration: added a Flux `Kustomization` manifest and a repo-local `k8s/` layout for Git-managed deployment state.
 - [x] Added cluster setup notes covering the GHCR pull secret, image path replacement, and the `/books/` routing model.
 - [x] Added Flux bootstrap, cutover, rollback, and deployment update runbooks.
+- [x] Deployment is live in the home lab on `themachine` at `http://192.168.1.3/books/`.
 
 ## Runtime Configuration Contract
 - `NODE_ENV=production`
@@ -129,6 +136,11 @@ flux bootstrap github \
 3. Update `k8s/base/deployment.yaml` to the desired tag or digest instead of relying on `:main` for long-term operations.
 4. Commit that manifest change.
 5. Wait for Flux to reconcile, then confirm the deployment is ready and the app is reachable at `/books/`.
+
+### Important Memory
+- `k8s/base/deployment.yaml` is part of the release process for `themachine`.
+- A new image published to GHCR under the same tag, such as `:main`, is not enough for Flux to produce a deterministic rollout by itself.
+- If the manifest image reference does not change, the safe assumption is that `themachine` may keep serving the old pod until a manual restart or another Git change forces replacement.
 
 ## Cutover Runbook
 1. Ensure the current non-containerized deployment remains available during cluster bring-up.
