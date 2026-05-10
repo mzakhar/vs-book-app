@@ -642,3 +642,143 @@
 
   --star-color: #ffdd44;
 }
+
+// Theme: Glass Light Override
+[data-theme="glass-light"] {
+  --bg-base: transparent;
+  --bg-surface: rgba(255, 255, 255, 0.24);
+  --bg-card: rgba(255, 255, 255, 0.28);
+  --bg-elevated: rgba(255, 255, 255, 0.38);
+  --bg-hover: rgba(255, 255, 255, 0.48);
+
+  --blob-bg:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.7), transparent 24%),
+    linear-gradient(135deg, #ffd7f6 0%, #ffe7b8 26%, #c4f0ff 58%, #b8d4ff 100%);
+  --blob-a-light: #ff9dd4;
+  --blob-a-mid: #ff6fb5;
+  --blob-a-dark: #ff4f87;
+  --blob-b-light: #8ef3ff;
+  --blob-b-mid: #50d8ff;
+  --blob-b-dark: #3d7cff;
+  --blob-c-light: #ffe98d;
+  --blob-c-mid: #ffb36b;
+  --blob-c-dark: #ff7e67;
+
+  --glass-blur: blur(26px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 24px 70px rgba(83, 65, 173, 0.14);
+
+  --border: rgba(255, 255, 255, 0.4);
+  --border-light: rgba(255, 255, 255, 0.24);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.78);
+
+  --accent: #5f49ff;
+  --accent-hover: #4a36de;
+  --accent-muted: rgba(95, 73, 255, 0.18);
+  --accent-subtle: rgba(95, 73, 255, 0.08);
+  --accent-focus: rgba(95, 73, 255, 0.24);
+
+  --text-1: #13213d;
+  --text-2: #30456e;
+  --text-3: #64779d;
+  --text-4: #8ea2c4;
+
+  --success: #099669;
+  --success-bg: rgba(9, 150, 105, 0.12);
+  --danger: #d83f69;
+  --danger-bg: rgba(216, 63, 105, 0.1);
+  --danger-border: rgba(216, 63, 105, 0.2);
+  --danger-hover-bg: rgba(216, 63, 105, 0.18);
+
+  --toast-success-bg: rgba(255, 255, 255, 0.72);
+  --toast-error-bg: rgba(255, 255, 255, 0.72);
+  --toast-info-bg: rgba(255, 255, 255, 0.72);
+  --toast-success-border: rgba(9, 150, 105, 0.35);
+  --toast-error-border: rgba(216, 63, 105, 0.35);
+  --toast-info-border: rgba(95, 73, 255, 0.35);
+
+  --modal-overlay: rgba(240, 243, 255, 0.34);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2330456e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #30456e;
+  --status-unread-bg: rgba(255, 255, 255, 0.42);
+  --status-unread-border: rgba(255, 255, 255, 0.72);
+  --status-reading-color: #5f49ff;
+  --status-reading-bg: rgba(95, 73, 255, 0.12);
+  --status-reading-border: rgba(95, 73, 255, 0.28);
+  --status-read-color: #099669;
+  --status-read-bg: rgba(9, 150, 105, 0.12);
+  --status-read-border: rgba(9, 150, 105, 0.28);
+
+  --star-color: #ff9f1a;
+}
+
+// Theme: Glass Rich Override
+[data-theme="glass-rich"] {
+  --bg-base: transparent;
+  --bg-surface: rgba(17, 18, 42, 0.36);
+  --bg-card: rgba(18, 20, 48, 0.3);
+  --bg-elevated: rgba(24, 26, 60, 0.44);
+  --bg-hover: rgba(31, 34, 78, 0.58);
+
+  --blob-bg:
+    radial-gradient(circle at 14% 20%, rgba(255, 255, 255, 0.1), transparent 22%),
+    linear-gradient(135deg, #150f2f 0%, #2c144d 26%, #12386a 58%, #111b3d 100%);
+  --blob-a-light: #ff6ab9;
+  --blob-a-mid: #df3cff;
+  --blob-a-dark: #7b3cff;
+  --blob-b-light: #67f7ff;
+  --blob-b-mid: #11d5ff;
+  --blob-b-dark: #1868ff;
+  --blob-c-light: #ffd26f;
+  --blob-c-mid: #ff914d;
+  --blob-c-dark: #ff5d7c;
+
+  --glass-blur: blur(24px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 24px 80px rgba(2, 3, 16, 0.46);
+
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.24);
+
+  --accent: #c978ff;
+  --accent-hover: #d9a3ff;
+  --accent-muted: rgba(201, 120, 255, 0.22);
+  --accent-subtle: rgba(201, 120, 255, 0.1);
+  --accent-focus: rgba(201, 120, 255, 0.3);
+
+  --text-1: #f6f4ff;
+  --text-2: #d5c8ff;
+  --text-3: #9fa0d4;
+  --text-4: #6569a0;
+
+  --success: #53e6a8;
+  --success-bg: rgba(83, 230, 168, 0.12);
+  --danger: #ff6f96;
+  --danger-bg: rgba(255, 111, 150, 0.12);
+  --danger-border: rgba(255, 111, 150, 0.24);
+  --danger-hover-bg: rgba(255, 111, 150, 0.2);
+
+  --toast-success-bg: rgba(9, 21, 24, 0.72);
+  --toast-error-bg: rgba(28, 10, 24, 0.72);
+  --toast-info-bg: rgba(14, 14, 38, 0.74);
+  --toast-success-border: rgba(83, 230, 168, 0.34);
+  --toast-error-border: rgba(255, 111, 150, 0.34);
+  --toast-info-border: rgba(201, 120, 255, 0.34);
+
+  --modal-overlay: rgba(2, 4, 18, 0.5);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239fa0d4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  --status-unread-color: #d5c8ff;
+  --status-unread-bg: rgba(255, 255, 255, 0.08);
+  --status-unread-border: rgba(255, 255, 255, 0.14);
+  --status-reading-color: #c978ff;
+  --status-reading-bg: rgba(201, 120, 255, 0.14);
+  --status-reading-border: rgba(201, 120, 255, 0.32);
+  --status-read-color: #53e6a8;
+  --status-read-bg: rgba(83, 230, 168, 0.12);
+  --status-read-border: rgba(83, 230, 168, 0.28);
+
+  --star-color: #ffd26f;
+}
