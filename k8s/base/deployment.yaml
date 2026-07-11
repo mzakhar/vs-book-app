@@ -24,6 +24,20 @@ spec:
               value: "3000"
             - name: DB_PATH
               value: /data/books.db
+            # Seeds the first admin only while the users table is empty;
+            # rotating these values later has no effect (use the in-app admin UI).
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: vs-book-app-admin
+                  key: ADMIN_USERNAME
+                  optional: true
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vs-book-app-admin
+                  key: ADMIN_PASSWORD
+                  optional: true
           ports:
             - containerPort: 3000
               name: http

@@ -1,7 +1,48 @@
 import axios from 'axios';
-import type { Book, BookStats, Note, Series } from '../types';
+import type { AuthUser, Book, BookStats, ManagedUser, Note, Series, UserRole } from '../types';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
+
+// 401 handling: AuthContext registers a callback on mount so this module
+// never has to import context code (would create a circular import).
+let onUnauthorized: (() => void) | null = null;
+export const registerUnauthorizedHandler = (cb: (() => void) | null) => {
+  onUnauthorized = cb;
+};
+// Guards against React 18 Strict Mode double-mount: unregister only clears
+// the handler it registered, so a stale cleanup can't clobber a newer one.
+export const unregisterUnauthorizedHandler = (cb: () => void) => {
+  if (onUnauthorized === cb) onUnauthorized = null;
+};
+
+api.interceptors.response.use(
+  r => r,
+  err => {
+    const url: string = err?.config?.url || '';
+    if (err?.response?.status === 401 && !url.startsWith('/auth/')) {
+      onUnauthorized?.();
+    }
+    return Promise.reject(err);
+  }
+);
+
+// Auth
+export const login = (username: string, password: string) =>
+  api.post<AuthUser>('/auth/login', { username, password }).then(r => r.data);
+export const logout = () =>
+  api.post('/auth/logout');
+export const getMe = () =>
+  api.get<AuthUser>('/auth/me').then(r => r.data);
+
+// Users (admin)
+export const getUsers = () =>
+  api.get<ManagedUser[]>('/users').then(r => r.data);
+export const createUser = (data: { username: string; password: string; role?: UserRole }) =>
+  api.post<ManagedUser>('/users', data).then(r => r.data);
+export const updateUser = (id: number, data: Partial<{ password: string; is_active: number; role: UserRole }>) =>
+  api.put<ManagedUser>(`/users/${id}`, data).then(r => r.data);
+export const deleteUser = (id: number) =>
+  api.delete(`/users/${id}`);
 
 // Books
 export const getBooks = (q?: string, status?: string) =>

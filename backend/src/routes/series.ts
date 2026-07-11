@@ -5,44 +5,44 @@ import { asyncHandler } from '../asyncHandler';
 
 const router = Router();
 
-export async function findOrCreateSeries(db: Database, name: string): Promise<number> {
+export async function findOrCreateSeries(db: Database, name: string, userId: number): Promise<number> {
   const existing = await db.get(
-    `SELECT id FROM series WHERE name = ? COLLATE NOCASE`,
-    name.trim()
+    `SELECT id FROM series WHERE name = ? COLLATE NOCASE AND user_id = ?`,
+    name.trim(), userId
   );
   if (existing) return existing.id;
   try {
-    const result = await db.run(`INSERT INTO series (name) VALUES (?)`, name.trim());
+    const result = await db.run(`INSERT INTO series (name, user_id) VALUES (?, ?)`, name.trim(), userId);
     return result.lastID!;
   } catch {
     // UNIQUE race — fetch it
-    const row = await db.get(`SELECT id FROM series WHERE name = ? COLLATE NOCASE`, name.trim());
+    const row = await db.get(`SELECT id FROM series WHERE name = ? COLLATE NOCASE AND user_id = ?`, name.trim(), userId);
     return row.id;
   }
 }
 
-async function seriesWithBooks(db: Database, id: number) {
-  const series = await db.get(`SELECT * FROM series WHERE id = ?`, id);
+async function seriesWithBooks(db: Database, id: number, userId: number) {
+  const series = await db.get(`SELECT * FROM series WHERE id = ? AND user_id = ?`, id, userId);
   if (!series) return null;
   const books = await db.all(
     `SELECT id, title, author, status, series_position, cover_url, rating
-     FROM books WHERE series_id = ? ORDER BY series_position ASC NULLS LAST, id ASC`,
-    id
+     FROM books WHERE series_id = ? AND user_id = ? ORDER BY series_position ASC NULLS LAST, id ASC`,
+    id, userId
   );
   const read_count = books.filter((b: any) => b.status === 'read').length;
   return { ...series, books, book_count: books.length, read_count };
 }
 
-router.get('/', asyncHandler(async (_req: Request, res: Response) => {
+router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const all = await db.all(`SELECT * FROM series ORDER BY name ASC`);
-  const result = await Promise.all(all.map((s: any) => seriesWithBooks(db, s.id)));
+  const all = await db.all(`SELECT * FROM series WHERE user_id = ? ORDER BY name ASC`, req.user!.id);
+  const result = await Promise.all(all.map((s: any) => seriesWithBooks(db, s.id, req.user!.id)));
   res.json(result);
 }));
 
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const s = await seriesWithBooks(db, Number(req.params.id));
+  const s = await seriesWithBooks(db, Number(req.params.id), req.user!.id);
   if (!s) return res.status(404).json({ error: 'Series not found' });
   res.json(s);
 }));
@@ -53,10 +53,10 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
   try {
     const result = await db.run(
-      `INSERT INTO series (name, total_books) VALUES (?, ?)`,
-      name.trim(), total_books ? Number(total_books) : null
+      `INSERT INTO series (name, total_books, user_id) VALUES (?, ?, ?)`,
+      name.trim(), total_books ? Number(total_books) : null, req.user!.id
     );
-    const s = await seriesWithBooks(db, result.lastID!);
+    const s = await seriesWithBooks(db, result.lastID!, req.user!.id);
     res.status(201).json(s);
   } catch {
     res.status(409).json({ error: 'Series name already exists' });
@@ -65,23 +65,23 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 
 router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const existing = await db.get(`SELECT * FROM series WHERE id = ?`, req.params.id);
+  const existing = await db.get(`SELECT * FROM series WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
   if (!existing) return res.status(404).json({ error: 'Series not found' });
   const { name, total_books } = req.body;
   await db.run(
-    `UPDATE series SET name=?, total_books=? WHERE id=?`,
+    `UPDATE series SET name=?, total_books=? WHERE id=? AND user_id=?`,
     name !== undefined ? name.trim() || existing.name : existing.name,
     total_books !== undefined ? (total_books ? Number(total_books) : null) : existing.total_books,
-    req.params.id
+    req.params.id, req.user!.id
   );
-  res.json(await seriesWithBooks(db, Number(req.params.id)));
+  res.json(await seriesWithBooks(db, Number(req.params.id), req.user!.id));
 }));
 
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const existing = await db.get(`SELECT id FROM series WHERE id = ?`, req.params.id);
+  const existing = await db.get(`SELECT id FROM series WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
   if (!existing) return res.status(404).json({ error: 'Series not found' });
-  await db.run(`DELETE FROM series WHERE id = ?`, req.params.id);
+  await db.run(`DELETE FROM series WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
   res.status(204).end();
 }));
 

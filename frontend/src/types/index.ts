@@ -1,5 +1,21 @@
 export type BookStatus = 'unread' | 'reading' | 'read' | 'wishlist';
 
+export type UserRole = 'admin' | 'user';
+
+export interface AuthUser {
+  id: number;
+  username: string;
+  role: UserRole;
+}
+
+export interface ManagedUser {
+  id: number;
+  username: string;
+  role: UserRole;
+  is_active: number;
+  created_at: string;
+}
+
 export interface Book {
   id: number;
   title: string;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BookMarked, Star, Palette } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo' | 'glass-light' | 'glass-rich';
 
@@ -58,10 +59,17 @@ const SPARKLES = [
 ] as const;
 
 export default function Layout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('book_app_theme') as Theme) || 'dark'
   );
   const isGlassTheme = theme === 'glass-light' || theme === 'glass-rich';
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -188,7 +196,22 @@ export default function Layout() {
             <BookMarked />
             Series
           </NavLink>
+          {user?.role === 'admin' && (
+            <NavLink
+              to="/users"
+              className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+            >
+              <Users />
+              Users
+            </NavLink>
+          )}
         </nav>
+        <div className="sidebar__account">
+          <span className="sidebar__account-username">{user?.username}</span>
+          <button className="btn btn--ghost btn--sm btn--icon" title="Log out" onClick={handleLogout}>
+            <LogOut size={14} />
+          </button>
+        </div>
         <div className="sidebar__theme">
           <div className="form-group" style={{ width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-3)', marginBottom: '4px' }}>
