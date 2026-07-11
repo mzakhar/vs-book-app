@@ -786,6 +786,55 @@
   }
 }
 
+// ── User List (Users admin page) ────────────────────────────────────────
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr 0.9fr 1fr auto;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  background: $bg-card;
+  border: var(--glass-border, 1px solid $border);
+  border-radius: $radius-lg;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
+
+  &--head {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0 $space-4;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-3;
+  }
+
+  &__username {
+    font-weight: 600;
+    color: $text-1;
+    @include truncate;
+  }
+
+  &__date {
+    font-size: 0.8125rem;
+    color: $text-3;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $space-2;
+    justify-content: flex-end;
+  }
+}
+
 // ── Cover Picker ──────────────────────────────────────────────────────────
 .cover-picker {
   display: flex;
