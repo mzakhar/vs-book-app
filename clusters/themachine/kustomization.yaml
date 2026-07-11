@@ -5,3 +5,5 @@ resources:
   - flux-system/gotk-sync.yaml
   - apps/vs-book-app.yaml
   - apps/gmail-frontend.yaml
+  - apps/synth.yaml
+  - cloudflared
