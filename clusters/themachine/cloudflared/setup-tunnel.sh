@@ -17,7 +17,11 @@ set -euo pipefail
 API="https://api.cloudflare.com/client/v4"
 TUNNEL_NAME="themachine"
 ZONE_NAME="zakharhome.org"
-HOSTNAME="synth.${ZONE_NAME}"
+# All hostnames route to in-cluster Traefik; host-based Ingress does the rest.
+HOSTNAMES=(
+  "synth.${ZONE_NAME}"
+  "books.${ZONE_NAME}"
+)
 ORIGIN_SERVICE="http://traefik.kube-system.svc.cluster.local:80"
 
 cf() {
@@ -55,27 +59,27 @@ else
   echo "    reusing tunnel $TUNNEL_ID"
 fi
 
-echo "==> Ingress config: $HOSTNAME -> $ORIGIN_SERVICE"
-cf PUT "/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/configurations" "$(jq -n \
-  --arg host "$HOSTNAME" --arg svc "$ORIGIN_SERVICE" '{
-  config: { ingress: [
-    { hostname: $host, service: $svc },
-    { service: "http_status:404" }
-  ]}}')" >/dev/null
+echo "==> Ingress config: ${HOSTNAMES[*]} -> $ORIGIN_SERVICE"
+INGRESS_RULES=$(printf '%s\n' "${HOSTNAMES[@]}" | jq -R --arg svc "$ORIGIN_SERVICE" \
+  '{hostname: ., service: $svc}' | jq -s '. + [{service: "http_status:404"}]')
+cf PUT "/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/configurations" \
+  "$(jq -n --argjson rules "$INGRESS_RULES" '{config: {ingress: $rules}}')" >/dev/null
 echo "    applied"
 
-echo "==> DNS: $HOSTNAME CNAME ${TUNNEL_ID}.cfargotunnel.com (proxied)"
-RECORD_ID=$(cf GET "/zones/$ZONE_ID/dns_records?type=CNAME&name=$HOSTNAME" \
-  | jq -r '.[0].id // empty')
-DNS_BODY=$(jq -n --arg name "$HOSTNAME" --arg target "${TUNNEL_ID}.cfargotunnel.com" \
-  '{type:"CNAME", name:$name, content:$target, proxied:true, ttl:1}')
-if [ -z "$RECORD_ID" ]; then
-  cf POST "/zones/$ZONE_ID/dns_records" "$DNS_BODY" >/dev/null
-  echo "    created"
-else
-  cf PUT "/zones/$ZONE_ID/dns_records/$RECORD_ID" "$DNS_BODY" >/dev/null
-  echo "    updated"
-fi
+for HOSTNAME in "${HOSTNAMES[@]}"; do
+  echo "==> DNS: $HOSTNAME CNAME ${TUNNEL_ID}.cfargotunnel.com (proxied)"
+  RECORD_ID=$(cf GET "/zones/$ZONE_ID/dns_records?type=CNAME&name=$HOSTNAME" \
+    | jq -r '.[0].id // empty')
+  DNS_BODY=$(jq -n --arg name "$HOSTNAME" --arg target "${TUNNEL_ID}.cfargotunnel.com" \
+    '{type:"CNAME", name:$name, content:$target, proxied:true, ttl:1}')
+  if [ -z "$RECORD_ID" ]; then
+    cf POST "/zones/$ZONE_ID/dns_records" "$DNS_BODY" >/dev/null
+    echo "    created"
+  else
+    cf PUT "/zones/$ZONE_ID/dns_records/$RECORD_ID" "$DNS_BODY" >/dev/null
+    echo "    updated"
+  fi
+done
 
 echo "==> Tunnel token"
 TOKEN=$(cf GET "/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/token" | jq -r '.')
@@ -90,5 +94,5 @@ Done. On themachine, install the token secret (cloudflared deployment reads it):
     --dry-run=client -o yaml | kubectl apply -f -
 
 Then let Flux reconcile (or: flux reconcile kustomization flux-system --with-source)
-and verify: https://$HOSTNAME
+and verify: ${HOSTNAMES[*]/#/https:\/\/}
 EOF
