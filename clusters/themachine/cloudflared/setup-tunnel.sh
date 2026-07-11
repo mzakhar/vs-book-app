@@ -37,9 +37,11 @@ cf() {
 }
 
 echo "==> Resolving account and zone"
-ACCOUNT_ID=$(cf GET "/accounts?per_page=5" | jq -r '.[0].id')
-ZONE_ID=$(cf GET "/zones?name=$ZONE_NAME" | jq -r '.[0].id')
-[ "$ZONE_ID" != "null" ] || { echo "zone $ZONE_NAME not found" >&2; exit 1; }
+ZONE=$(cf GET "/zones?name=$ZONE_NAME")
+ZONE_ID=$(jq -r '.[0].id // empty' <<<"$ZONE")
+ACCOUNT_ID=$(jq -r '.[0].account.id // empty' <<<"$ZONE")
+[ -n "$ZONE_ID" ] || { echo "zone $ZONE_NAME not found" >&2; exit 1; }
+[ -n "$ACCOUNT_ID" ] || { echo "could not resolve account id from zone" >&2; exit 1; }
 echo "    account=$ACCOUNT_ID zone=$ZONE_ID"
 
 echo "==> Tunnel: $TUNNEL_NAME"
