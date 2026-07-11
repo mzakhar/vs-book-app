@@ -6,6 +6,9 @@ const router = Router();
 
 router.get('/:bookId', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
+  const book = await db.get(`SELECT id FROM books WHERE id = ? AND user_id = ?`, req.params.bookId, req.user!.id);
+  if (!book) return res.status(404).json({ error: 'Book not found' });
+
   res.json(await db.all(
     `SELECT * FROM notes WHERE book_id = ? ORDER BY created_at DESC`,
     req.params.bookId
@@ -17,7 +20,7 @@ router.post('/:bookId', asyncHandler(async (req: Request, res: Response) => {
   if (!content || !content.trim()) return res.status(400).json({ error: 'Content is required' });
 
   const db = await getDb();
-  const book = await db.get(`SELECT id FROM books WHERE id = ?`, req.params.bookId);
+  const book = await db.get(`SELECT id FROM books WHERE id = ? AND user_id = ?`, req.params.bookId, req.user!.id);
   if (!book) return res.status(404).json({ error: 'Book not found' });
 
   const result = await db.run(
@@ -32,7 +35,10 @@ router.put('/:noteId', asyncHandler(async (req: Request, res: Response) => {
   if (!content || !content.trim()) return res.status(400).json({ error: 'Content is required' });
 
   const db = await getDb();
-  const existing = await db.get(`SELECT id FROM notes WHERE id = ?`, req.params.noteId);
+  const existing = await db.get(
+    `SELECT n.id FROM notes n JOIN books b ON b.id = n.book_id WHERE n.id = ? AND b.user_id = ?`,
+    req.params.noteId, req.user!.id
+  );
   if (!existing) return res.status(404).json({ error: 'Note not found' });
 
   await db.run(
@@ -44,7 +50,10 @@ router.put('/:noteId', asyncHandler(async (req: Request, res: Response) => {
 
 router.delete('/:noteId', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const existing = await db.get(`SELECT id FROM notes WHERE id = ?`, req.params.noteId);
+  const existing = await db.get(
+    `SELECT n.id FROM notes n JOIN books b ON b.id = n.book_id WHERE n.id = ? AND b.user_id = ?`,
+    req.params.noteId, req.user!.id
+  );
   if (!existing) return res.status(404).json({ error: 'Note not found' });
   await db.run(`DELETE FROM notes WHERE id = ?`, req.params.noteId);
   res.status(204).end();
