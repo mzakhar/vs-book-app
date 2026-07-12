@@ -1,5 +1,7 @@
 export type BookStatus = 'unread' | 'reading' | 'read' | 'wishlist';
 
+export type FeedbackType = 'bug' | 'feature' | 'other';
+
 export type UserRole = 'admin' | 'user';
 
 export interface AuthUser {

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { getMyProfile } from '../api';
 import type { UserProfile } from '../types';
 import ProfileEditModal from './ProfileEditModal';
+import FeedbackButton from './FeedbackButton';
 
 type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo' | 'glass-light' | 'glass-rich';
 
@@ -292,6 +293,7 @@ export default function Layout() {
       </aside>
       <main className="main-content">
         <Outlet />
+        <FeedbackButton />
       </main>
       {showEditProfile && (
         <ProfileEditModal

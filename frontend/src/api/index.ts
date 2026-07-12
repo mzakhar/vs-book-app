@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthUser, Book, BookStats, ManagedUser, Note, Series, UserRole, UserProfile, UserSummary } from '../types';
+import type { AuthUser, Book, BookStats, FeedbackType, ManagedUser, Note, Series, UserRole, UserProfile, UserSummary } from '../types';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
 
@@ -89,3 +89,7 @@ export const updateSeries = (id: number, data: { name?: string; total_books?: nu
   api.put<Series>(`/series/${id}`, data).then(r => r.data);
 export const deleteSeries = (id: number) =>
   api.delete(`/series/${id}`);
+
+// Feedback
+export const submitFeedback = (type: FeedbackType, description: string) =>
+  api.post<{ issueNumber: number; issueUrl: string }>('/feedback', { type, description }).then(r => r.data);
