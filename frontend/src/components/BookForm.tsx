@@ -165,7 +165,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
         page_count:      form.page_count !== '' ? Number(form.page_count) : undefined,
         description:     form.description.trim() || undefined,
       };
-      const book = existing
+      const book = existing?.id != null
         ? await updateBook(existing.id, payload)
         : await createBook(payload);
       onSave(book);
@@ -361,7 +361,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
       <div className="modal__footer" style={{ padding: 0, border: 'none', marginTop: '8px' }}>
         <button type="button" className="btn btn--secondary" onClick={onCancel}>Cancel</button>
         <button type="submit" className="btn btn--primary" disabled={saving}>
-          {saving ? 'Saving…' : existing ? 'Save Changes' : 'Add Book'}
+          {saving ? 'Saving…' : existing?.id != null ? 'Save Changes' : 'Add Book'}
         </button>
       </div>
     </form>
