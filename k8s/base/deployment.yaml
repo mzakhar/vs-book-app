@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/mzakhar/vs-book-app@sha256:a955700f69eb17a8d1025304224015c1dc671a72b77cafeaefafffbd8a51acb5
+          image: ghcr.io/mzakhar/vs-book-app@sha256:4c5ecfdfcbb88b6897e2d0e2f2c7d847808cbb92379cf3dab1d8d2a37b69a79f
           imagePullPolicy: IfNotPresent
           env:
             - name: NODE_ENV
@@ -37,6 +37,15 @@ spec:
                 secretKeyRef:
                   name: vs-book-app-admin
                   key: ADMIN_PASSWORD
+                  optional: true
+            - name: GITHUB_REPO
+              value: mzakhar/vs-book-app
+            # In-app feedback → GitHub issues; endpoint returns 503 while unset.
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vs-book-app-github
+                  key: GITHUB_TOKEN
                   optional: true
           ports:
             - containerPort: 3000
