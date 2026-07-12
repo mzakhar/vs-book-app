@@ -73,6 +73,17 @@ export async function getDb(): Promise<Database> {
       expires_at TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS feedback (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id       INTEGER NOT NULL REFERENCES users(id),
+      type          TEXT NOT NULL CHECK (type IN ('bug', 'feature', 'other')),
+      description   TEXT NOT NULL,
+      status        TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'synced', 'failed')),
+      issue_number  INTEGER,
+      issue_url     TEXT,
+      created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // 2. Run migrations for columns
