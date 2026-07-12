@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthUser, Book, BookStats, ManagedUser, Note, Series, UserRole } from '../types';
+import type { AuthUser, Book, BookStats, ManagedUser, Note, Series, UserRole, UserProfile, UserSummary } from '../types';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
 
@@ -36,13 +36,23 @@ export const getMe = () =>
 
 // Users (admin)
 export const getUsers = () =>
-  api.get<ManagedUser[]>('/users').then(r => r.data);
+  api.get<ManagedUser[]>('/users/admin').then(r => r.data);
 export const createUser = (data: { username: string; password: string; role?: UserRole }) =>
   api.post<ManagedUser>('/users', data).then(r => r.data);
 export const updateUser = (id: number, data: Partial<{ password: string; is_active: number; role: UserRole }>) =>
   api.put<ManagedUser>(`/users/${id}`, data).then(r => r.data);
 export const deleteUser = (id: number) =>
   api.delete(`/users/${id}`);
+
+// Profiles
+export const getUserProfiles = () =>
+  api.get<UserSummary[]>('/users').then(r => r.data);
+export const getUserProfile = (id: number) =>
+  api.get<UserProfile>(`/users/${id}/profile`).then(r => r.data);
+export const getMyProfile = () =>
+  api.get<UserProfile>('/users/me/profile').then(r => r.data);
+export const updateMyProfile = (data: { screen_name: string | null; avatar_url: string | null; favorite_genres: string[]; favorite_book_id: number | null }) =>
+  api.put<UserProfile>('/users/me/profile', data).then(r => r.data);
 
 // Books
 export const getBooks = (q?: string, status?: string) =>
