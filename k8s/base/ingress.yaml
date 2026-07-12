@@ -67,5 +67,5 @@ metadata:
   namespace: vs-book-app
 spec:
   redirectRegex:
-    regex: ^(https?)://books\.zakharhome\.org/?$
-    replacement: ${1}://books.zakharhome.org/books/
+    regex: ^https?://books\.zakharhome\.org/?$
+    replacement: https://books.zakharhome.org/books/
