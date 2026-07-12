@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ImageIcon, X } from 'lucide-react';
 import { getMyProfile, updateMyProfile, getBooks } from '../api';
 import { parseGenres } from '../types';
 import type { Book } from '../types';
 import Modal from './Modal';
+import ImagePicker from './ImagePicker';
 import { useToast } from './Toast';
 
 const MAX_GENRES = 10;
@@ -72,25 +72,6 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
     });
   };
 
-  const handlePaste = async (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of Array.from(items)) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (!file) return;
-        try {
-          const dataUrl = await compressAvatar(file);
-          setAvatarUrl(dataUrl);
-        } catch {
-          toast('error', 'Could not read pasted image');
-        }
-        return;
-      }
-    }
-  };
-
   const handleSave = async () => {
     setSaving(true);
     setError('');
@@ -111,8 +92,6 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
       setSaving(false);
     }
   };
-
-  const hasAvatar = avatarUrl.trim() !== '';
 
   return (
     <Modal
@@ -147,23 +126,13 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
 
           <div className="form-group">
             <label className="form-label">Avatar</label>
-            <div className="cover-picker" onPaste={handlePaste} tabIndex={0}>
-              <div className="cover-picker__zone cover-picker__zone--avatar">
-                {hasAvatar ? (
-                  <>
-                    <img className="cover-picker__img" src={avatarUrl} alt="Avatar preview" onError={() => setAvatarUrl('')} />
-                    <button type="button" className="cover-picker__clear" onClick={() => setAvatarUrl('')} title="Remove avatar">
-                      <X size={12} />
-                    </button>
-                  </>
-                ) : (
-                  <div className="cover-picker__placeholder">
-                    <ImageIcon size={24} />
-                    <span>Ctrl+V to paste image</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ImagePicker
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+              compress={compressAvatar}
+              variant="avatar"
+              alt="Avatar preview"
+            />
           </div>
 
           <div className="form-group">

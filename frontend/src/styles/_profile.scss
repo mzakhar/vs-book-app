@@ -27,6 +27,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: $space-4;
+  max-width: 100%;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
 }
 
 .reader-card {

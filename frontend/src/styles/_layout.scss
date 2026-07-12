@@ -76,7 +76,7 @@
   color: $text-2;
   transition: background $transition;
 
-  &:hover {
+  &:hover, &:focus-visible {
     background: $bg-elevated;
     backdrop-filter: var(--glass-blur);
   }
@@ -111,7 +111,7 @@
     text-align: left;
     transition: background $transition, color $transition;
 
-    &:hover {
+    &:hover, &:focus-visible {
       background: $bg-elevated;
       color: $text-1;
     }
@@ -149,7 +149,7 @@
     transition: opacity $transition;
   }
 
-  &:hover {
+  &:hover, &:focus-visible {
     color: $text-1;
     background: $bg-elevated;
     backdrop-filter: var(--glass-blur);
@@ -184,6 +184,39 @@
   flex: 1;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+// ── Small screens: sidebar becomes a horizontal top bar ────────────────────
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  .sidebar__brand {
+    padding: $space-3 $space-4;
+  }
+
+  .sidebar__nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: $space-2 $space-3;
+    @include scrollbar;
+  }
+
+  .nav-item {
+    flex-shrink: 0;
+  }
+
+  .sidebar__account,
+  .sidebar__theme {
+    flex-shrink: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
