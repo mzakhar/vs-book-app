@@ -1,0 +1,111 @@
+@use 'variables' as *;
+
+// ── Avatar ────────────────────────────────────────────────────────────────
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+
+  &--sm { width: 24px; height: 24px; font-size: 0.7rem; }
+  &--lg { width: 56px; height: 56px; font-size: 1.3rem; }
+  &--xl { width: 80px; height: 80px; font-size: 1.8rem; }
+
+  &--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-elevated;
+    color: $text-2;
+    font-weight: 700;
+    border: var(--glass-border, 1px solid $border);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+// ── Readers Directory ────────────────────────────────────────────────────
+.reader-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: $space-4;
+}
+
+.reader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-4;
+  background: $bg-card;
+  border: var(--glass-border, 1px solid $border);
+  border-radius: $radius-lg;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  transition: transform $transition, border-color $transition, box-shadow $transition;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: $border-light;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-1;
+    @include truncate;
+    max-width: 100%;
+  }
+}
+
+// ── Profile Page ─────────────────────────────────────────────────────────
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+}
+
+// ── Chip Picker (favorite genres) ────────────────────────────────────────
+.chip-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+
+  &__chip {
+    padding: $space-1 + 2px $space-3;
+    background: $bg-elevated;
+    border: 1px solid $border;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: $text-2;
+    transition: background $transition, color $transition, border-color $transition;
+    backdrop-filter: var(--glass-blur);
+
+    &:hover:not(:disabled) {
+      border-color: $accent;
+      color: $text-1;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      background: $accent;
+      border-color: $accent;
+      color: #fff;
+    }
+  }
+}
+
+// ── Avatar picker (reuses .cover-picker) ─────────────────────────────────
+.cover-picker__zone--avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+
+  .cover-picker__img { object-fit: cover; }
+}

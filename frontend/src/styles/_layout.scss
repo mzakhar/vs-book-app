@@ -51,10 +51,7 @@
 }
 
 .sidebar__account {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $space-2;
+  position: relative;
   padding: $space-3 $space-4;
   border-top: 1px solid $border;
 
@@ -62,7 +59,62 @@
     font-size: 0.8125rem;
     font-weight: 500;
     color: $text-2;
+    flex: 1;
+    text-align: left;
     @include truncate;
+  }
+}
+
+// ── Account Menu (sidebar avatar dropdown) ─────────────────────────────────
+.account-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  width: 100%;
+  padding: $space-1 + 2px;
+  border-radius: $radius;
+  color: $text-2;
+  transition: background $transition;
+
+  &:hover {
+    background: $bg-elevated;
+    backdrop-filter: var(--glass-blur);
+  }
+
+  svg { flex-shrink: 0; opacity: 0.6; }
+}
+
+.account-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: $space-4;
+  right: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $space-1 + 2px;
+  background: $bg-card;
+  border: var(--glass-border, 1px solid $border);
+  border-radius: $radius;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, 0 8px 24px rgba(0, 0, 0, 0.4));
+  z-index: 10;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    font-size: 0.8125rem;
+    color: $text-2;
+    text-align: left;
+    transition: background $transition, color $transition;
+
+    &:hover {
+      background: $bg-elevated;
+      color: $text-1;
+    }
   }
 }
 

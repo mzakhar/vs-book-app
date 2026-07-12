@@ -9,7 +9,7 @@ import seriesRouter from './routes/series';
 import authRouter from './routes/auth';
 import usersRouter from './routes/users';
 import { getDb } from './database';
-import { requireAuth, requireAdmin } from './middleware/auth';
+import { requireAuth } from './middleware/auth';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,7 +23,7 @@ app.set('trust proxy', IS_PROD ? 2 : false);
 if (!IS_PROD) {
   app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'] }));
 }
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
 const loginLimiter = rateLimit({
@@ -34,7 +34,7 @@ const loginLimiter = rateLimit({
 
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRouter);
-app.use('/api/users', requireAuth, requireAdmin, usersRouter);
+app.use('/api/users', requireAuth, usersRouter);
 app.use('/api/books', requireAuth, booksRouter);
 app.use('/api/notes', requireAuth, notesRouter);
 app.use('/api/series', requireAuth, seriesRouter);

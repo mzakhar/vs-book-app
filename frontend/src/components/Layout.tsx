@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut } from 'lucide-react';
+import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getMyProfile } from '../api';
+import type { UserProfile } from '../types';
+import ProfileEditModal from './ProfileEditModal';
 
 type Theme = 'dark' | 'light' | 'purple' | 'rainbow' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'indigo' | 'glass-light' | 'glass-rich';
 
@@ -66,6 +69,28 @@ export default function Layout() {
   );
   const isGlassTheme = theme === 'glass-light' || theme === 'glass-rich';
 
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  const loadProfile = useCallback(() => {
+    getMyProfile().then(setProfile).catch(() => setProfile(null));
+  }, []);
+
+  useEffect(() => { loadProfile(); }, [loadProfile]);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [accountOpen]);
+
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
@@ -75,6 +100,8 @@ export default function Layout() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('book_app_theme', theme);
   }, [theme]);
+
+  const displayName = profile?.screen_name || user?.username || '';
 
   return (
     <div className="layout">
@@ -196,9 +223,16 @@ export default function Layout() {
             <BookMarked />
             Series
           </NavLink>
+          <NavLink
+            to="/users"
+            className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+          >
+            <UserCircle2 />
+            Readers
+          </NavLink>
           {user?.role === 'admin' && (
             <NavLink
-              to="/users"
+              to="/admin/users"
               className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
             >
               <Users />
@@ -206,11 +240,36 @@ export default function Layout() {
             </NavLink>
           )}
         </nav>
-        <div className="sidebar__account">
-          <span className="sidebar__account-username">{user?.username}</span>
-          <button className="btn btn--ghost btn--sm btn--icon" title="Log out" onClick={handleLogout}>
-            <LogOut size={14} />
+        <div className="sidebar__account" ref={accountRef}>
+          <button
+            type="button"
+            className="account-menu__trigger"
+            onClick={() => setAccountOpen(o => !o)}
+          >
+            {profile?.avatar_url ? (
+              <img className="avatar avatar--sm" src={profile.avatar_url} alt="" />
+            ) : (
+              <span className="avatar avatar--sm avatar--fallback">{displayName.charAt(0).toUpperCase() || '?'}</span>
+            )}
+            <span className="sidebar__account-username">{displayName}</span>
+            {accountOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
+          {accountOpen && (
+            <div className="account-menu">
+              <button
+                type="button"
+                className="account-menu__item"
+                onClick={() => { setAccountOpen(false); setShowEditProfile(true); }}
+              >
+                <Pencil size={14} />
+                Edit profile
+              </button>
+              <button type="button" className="account-menu__item" onClick={handleLogout}>
+                <LogOut size={14} />
+                Log out
+              </button>
+            </div>
+          )}
         </div>
         <div className="sidebar__theme">
           <div className="form-group" style={{ width: '100%' }}>
@@ -234,6 +293,12 @@ export default function Layout() {
       <main className="main-content">
         <Outlet />
       </main>
+      {showEditProfile && (
+        <ProfileEditModal
+          onClose={() => setShowEditProfile(false)}
+          onSaved={() => { setShowEditProfile(false); loadProfile(); }}
+        />
+      )}
     </div>
   );
 }

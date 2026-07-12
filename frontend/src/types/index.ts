@@ -16,6 +16,28 @@ export interface ManagedUser {
   created_at: string;
 }
 
+export interface UserSummary {
+  id: number;
+  screen_name: string;
+  avatar_url: string | null;
+}
+
+export interface FavoriteBook {
+  id: number;
+  title: string;
+  author: string | null;
+  cover_url: string | null;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  screen_name: string | null;
+  avatar_url: string | null;
+  favorite_genres: string[];
+  favorite_book: FavoriteBook | null;
+}
+
 export interface Book {
   id: number;
   title: string;
