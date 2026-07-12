@@ -1,9 +1,10 @@
 import { useState, FormEvent, useRef, useEffect } from 'react';
-import { ImageIcon, X, Search, Loader } from 'lucide-react';
+import { ImageIcon, Search, Loader } from 'lucide-react';
 import { createBook, updateBook } from '../api';
 import type { Book, BookStatus } from '../types';
 import { searchOpenLibrary, fetchWorkDetails, fetchEditions, normalizeAutoFill } from '../api/openLibrary';
 import type { OLSearchResult } from '../api/openLibrary';
+import ImagePicker from './ImagePicker';
 
 const STATUSES: { value: BookStatus; label: string }[] = [
   { value: 'unread', label: 'Unread' },
@@ -132,21 +133,6 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     }
   };
 
-  const handlePaste = async (e: React.ClipboardEvent<HTMLFormElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of Array.from(items)) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (!file) return;
-        const dataUrl = await compressImage(file);
-        set('cover_url', dataUrl);
-        return;
-      }
-    }
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { setError('Title is required.'); return; }
@@ -175,10 +161,8 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     }
   };
 
-  const hasCover = form.cover_url.trim() !== '';
-
   return (
-    <form onSubmit={handleSubmit} onPaste={handlePaste}>
+    <form onSubmit={handleSubmit}>
       {error && <p className="form-error">{error}</p>}
 
       {/* OL Search */}
@@ -278,39 +262,13 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
         {/* Cover picker */}
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
           <label className="form-label">Cover Image</label>
-          <div className="cover-picker">
-            <div className="cover-picker__zone">
-              {hasCover ? (
-                <>
-                  <img
-                    className="cover-picker__img"
-                    src={form.cover_url}
-                    alt="Cover preview"
-                    onError={() => set('cover_url', '')}
-                  />
-                  <button
-                    type="button"
-                    className="cover-picker__clear"
-                    onClick={() => set('cover_url', '')}
-                    title="Remove cover"
-                  >
-                    <X size={12} />
-                  </button>
-                </>
-              ) : (
-                <div className="cover-picker__placeholder">
-                  <ImageIcon size={28} />
-                  <span>Ctrl+V to paste image</span>
-                </div>
-              )}
-            </div>
-            <input
-              className="form-input cover-picker__url"
-              value={hasCover && form.cover_url.startsWith('data:') ? '' : form.cover_url}
-              onChange={e => set('cover_url', e.target.value)}
-              placeholder="…or paste / type an image URL"
-            />
-          </div>
+          <ImagePicker
+            value={form.cover_url}
+            onChange={url => set('cover_url', url)}
+            compress={compressImage}
+            variant="cover"
+            alt="Cover preview"
+          />
         </div>
 
         {/* Series fields */}

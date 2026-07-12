@@ -17,7 +17,7 @@
   &--primary {
     background: $accent;
     color: #fff;
-    &:hover { background: $accent-hover; }
+    &:hover, &:focus-visible { background: $accent-hover; }
   }
 
   &--secondary {
@@ -25,19 +25,19 @@
     color: $text-1;
     border: 1px solid $border-light;
     backdrop-filter: var(--glass-blur);
-    &:hover { background: $bg-hover; border-color: var(--btn-secondary-hover-border); }
+    &:hover, &:focus-visible { background: $bg-hover; border-color: var(--btn-secondary-hover-border); }
   }
 
   &--ghost {
     color: $text-2;
-    &:hover { background: $bg-elevated; color: $text-1; backdrop-filter: var(--glass-blur); }
+    &:hover, &:focus-visible { background: $bg-elevated; color: $text-1; backdrop-filter: var(--glass-blur); }
   }
 
   &--danger {
     background: $danger-bg;
     color: $danger;
     border: 1px solid var(--danger-border);
-    &:hover { background: var(--danger-hover-bg); }
+    &:hover, &:focus-visible { background: var(--danger-hover-bg); }
   }
 
   &--sm {
@@ -90,6 +90,11 @@
   }
 
   option { background: $bg-elevated; }
+
+  // 16px kills iOS Safari's auto-zoom-on-focus behavior
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 }
 
 .form-textarea {
@@ -187,6 +192,10 @@
 
     &::placeholder { color: $text-4; }
     &:focus { outline: none; border-color: $border-light; }
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
   }
 }
 
@@ -241,7 +250,12 @@
     color: $text-3;
     border-radius: $radius-sm;
     transition: color $transition, background $transition;
-    &:hover { color: $text-1; background: $bg-elevated; }
+    &:hover, &:focus-visible { color: $text-1; background: $bg-elevated; }
+
+    @media (pointer: coarse) {
+      width: 44px;
+      height: 44px;
+    }
   }
 
   &__body {
@@ -446,7 +460,15 @@
     transition: background $transition, color $transition;
     white-space: nowrap;
 
-    &:hover { color: $text-1; }
+    @media (pointer: coarse) {
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:hover, &:focus-visible { color: $text-1; }
 
     &--active {
       background: $bg-card;
@@ -461,6 +483,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: $space-4;
+  max-width: 100%;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
 
   &__item {
     text-decoration: none;
@@ -535,6 +562,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: $space-4;
+  max-width: 100%;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
 }
 
 .book-card {
@@ -556,7 +588,9 @@
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 
-    .book-card__delete { opacity: 1; }
+    @media (hover: hover) {
+      .book-card__delete { opacity: 1; }
+    }
   }
 
   &__cover {
@@ -614,14 +648,17 @@
     position: absolute;
     top: $space-2;
     right: $space-2;
-    opacity: 0;
     transition: opacity $transition;
     background: $bg-card;
     border: 1px solid $border;
     color: $danger;
     backdrop-filter: var(--glass-blur);
 
-    &:hover { background: $danger-bg; }
+    @media (hover: hover) {
+      opacity: 0;
+    }
+
+    &:hover, &:focus-visible { background: $danger-bg; }
   }
 }
 
@@ -911,7 +948,12 @@
     justify-content: center;
     transition: background $transition;
 
-    &:hover { background: var(--danger); }
+    &:hover, &:focus-visible { background: var(--danger); }
+
+    @media (pointer: coarse) {
+      width: 44px;
+      height: 44px;
+    }
   }
 
   &__url {
