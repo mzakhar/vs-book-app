@@ -86,19 +86,21 @@ const PROFILE_COLUMNS = `id, username, screen_name, avatar_url, favorite_genres,
 
 // --- Routes ---
 
-router.get('/', asyncHandler(async (req: Request, res: Response) => {
+// Public directory — same shape for every caller so the Readers page
+// works for admins too; the management list lives at /admin.
+router.get('/', asyncHandler(async (_req: Request, res: Response) => {
   const db = await getDb();
-
-  if (req.user!.role === 'admin') {
-    const users = await db.all(
-      `SELECT id, username, role, is_active, created_at FROM users ORDER BY id ASC`
-    );
-    return res.json(users);
-  }
-
   const users = await db.all(
     `SELECT id, COALESCE(screen_name, username) as screen_name, avatar_url
      FROM users WHERE is_active = 1 ORDER BY id ASC`
+  );
+  res.json(users);
+}));
+
+router.get('/admin', requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
+  const db = await getDb();
+  const users = await db.all(
+    `SELECT id, username, role, is_active, created_at FROM users ORDER BY id ASC`
   );
   res.json(users);
 }));

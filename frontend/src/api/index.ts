@@ -36,7 +36,7 @@ export const getMe = () =>
 
 // Users (admin)
 export const getUsers = () =>
-  api.get<ManagedUser[]>('/users').then(r => r.data);
+  api.get<ManagedUser[]>('/users/admin').then(r => r.data);
 export const createUser = (data: { username: string; password: string; role?: UserRole }) =>
   api.post<ManagedUser>('/users', data).then(r => r.data);
 export const updateUser = (id: number, data: Partial<{ password: string; is_active: number; role: UserRole }>) =>

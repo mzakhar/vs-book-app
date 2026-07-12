@@ -9,9 +9,13 @@ import { useToast } from './Toast';
 const MAX_GENRES = 10;
 
 function compressAvatar(file: File): Promise<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read image'));
+    };
     img.onload = () => {
       const MAX_W = 256, MAX_H = 256;
       const scale = Math.min(MAX_W / img.naturalWidth, MAX_H / img.naturalHeight, 1);
@@ -76,8 +80,12 @@ export default function ProfileEditModal({ onClose, onSaved }: Props) {
         e.preventDefault();
         const file = item.getAsFile();
         if (!file) return;
-        const dataUrl = await compressAvatar(file);
-        setAvatarUrl(dataUrl);
+        try {
+          const dataUrl = await compressAvatar(file);
+          setAvatarUrl(dataUrl);
+        } catch {
+          toast('error', 'Could not read pasted image');
+        }
         return;
       }
     }
