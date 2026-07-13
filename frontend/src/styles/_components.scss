@@ -503,6 +503,7 @@
   }
 
   &__cover-wrap {
+    position: relative;
     aspect-ratio: 2 / 3;
     border-radius: $radius;
     overflow: hidden;
@@ -513,6 +514,33 @@
     align-items: center;
     justify-content: center;
     backdrop-filter: var(--glass-blur);
+  }
+
+  &__favorite {
+    position: absolute;
+    top: $space-2;
+    right: $space-2;
+    z-index: 1;
+    background: $bg-card;
+    border: 1px solid $border;
+    color: $text-3;
+    backdrop-filter: var(--glass-blur);
+    transition: opacity $transition, color $transition;
+
+    @media (hover: hover) {
+      opacity: 0;
+    }
+
+    &:hover, &:focus-visible { background: $danger-bg; color: $danger; }
+
+    &--active {
+      color: $danger;
+      opacity: 1;
+    }
+  }
+
+  &__item:hover &__favorite {
+    opacity: 1;
   }
 
   &__cover {

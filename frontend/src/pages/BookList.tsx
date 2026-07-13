@@ -169,6 +169,13 @@ export default function BookList() {
                     <span>{book.title}</span>
                   </div>
                 )}
+                <button
+                  className={`book-gallery__favorite btn btn--icon btn--ghost${book.is_favorite ? ' book-gallery__favorite--active' : ''}`}
+                  onClick={e => handleToggleFavorite(e, book)}
+                  title={book.is_favorite ? 'Unfavorite' : 'Favorite'}
+                >
+                  <Heart size={14} fill={book.is_favorite ? 'currentColor' : 'none'} />
+                </button>
               </div>
               <div className="book-gallery__title">{book.title}</div>
             </Link>
