@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getDb } from '../database';
 import { asyncHandler } from '../asyncHandler';
-import { findOrCreateSeries } from './series';
+import { deleteSeriesIfEmpty, findOrCreateSeries } from './series';
 
 const router = Router();
 
@@ -152,29 +152,40 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  await db.run(
-    `UPDATE books SET title=?, author=?, status=?, rating=?, cover_url=?,
-     series_id=?, series_position=?, page_count=?, description=? WHERE id=? AND user_id=?`,
-    title !== undefined ? title.trim() || existing.title : existing.title,
-    author !== undefined ? author?.trim() || null : existing.author,
-    status !== undefined ? status : existing.status,
-    rating !== undefined ? (rating ? Number(rating) : null) : existing.rating,
-    cover_url !== undefined ? cover_url?.trim() || null : existing.cover_url,
-    series_id,
-    series_position !== undefined ? (series_position != null ? Number(series_position) : null) : existing.series_position,
-    page_count !== undefined ? (page_count ? Number(page_count) : null) : existing.page_count,
-    description !== undefined ? description?.trim() || null : existing.description,
-    req.params.id, req.user!.id
-  );
+  await db.exec('BEGIN TRANSACTION');
+  try {
+    await db.run(
+      `UPDATE books SET title=?, author=?, status=?, rating=?, cover_url=?,
+       series_id=?, series_position=?, page_count=?, description=? WHERE id=? AND user_id=?`,
+      title !== undefined ? title.trim() || existing.title : existing.title,
+      author !== undefined ? author?.trim() || null : existing.author,
+      status !== undefined ? status : existing.status,
+      rating !== undefined ? (rating ? Number(rating) : null) : existing.rating,
+      cover_url !== undefined ? cover_url?.trim() || null : existing.cover_url,
+      series_id,
+      series_position !== undefined ? (series_position != null ? Number(series_position) : null) : existing.series_position,
+      page_count !== undefined ? (page_count ? Number(page_count) : null) : existing.page_count,
+      description !== undefined ? description?.trim() || null : existing.description,
+      req.params.id, req.user!.id
+    );
 
-  if (genres !== undefined || genre !== undefined) {
-    await db.run("DELETE FROM book_genres WHERE book_id = ?", req.params.id);
-    const genresToSave = Array.isArray(genres) ? genres : (genre ? genre.split(',').map((g: string) => g.trim()) : []);
-    for (const g of genresToSave) {
-      if (g && g.trim()) {
-        await db.run("INSERT OR IGNORE INTO book_genres (book_id, genre) VALUES (?, ?)", req.params.id, g.trim());
+    if (existing.series_id !== series_id) {
+      await deleteSeriesIfEmpty(db, existing.series_id, req.user!.id);
+    }
+
+    if (genres !== undefined || genre !== undefined) {
+      await db.run("DELETE FROM book_genres WHERE book_id = ?", req.params.id);
+      const genresToSave = Array.isArray(genres) ? genres : (genre ? genre.split(',').map((g: string) => g.trim()) : []);
+      for (const g of genresToSave) {
+        if (g && g.trim()) {
+          await db.run("INSERT OR IGNORE INTO book_genres (book_id, genre) VALUES (?, ?)", req.params.id, g.trim());
+        }
       }
     }
+    await db.exec('COMMIT');
+  } catch (error) {
+    await db.exec('ROLLBACK');
+    throw error;
   }
 
   res.json(await db.get(`${SELECT_BOOK} WHERE b.id = ? AND b.user_id = ? ${GROUP_BY_BOOK}`, req.params.id, req.user!.id));
@@ -182,9 +193,17 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
-  const existing = await db.get(`SELECT id FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
+  const existing = await db.get(`SELECT id, series_id FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
   if (!existing) return res.status(404).json({ error: 'Book not found' });
-  await db.run(`DELETE FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
+  await db.exec('BEGIN TRANSACTION');
+  try {
+    await db.run(`DELETE FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
+    await deleteSeriesIfEmpty(db, existing.series_id, req.user!.id);
+    await db.exec('COMMIT');
+  } catch (error) {
+    await db.exec('ROLLBACK');
+    throw error;
+  }
   res.status(204).end();
 }));
 
