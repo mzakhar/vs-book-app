@@ -21,6 +21,19 @@ export async function findOrCreateSeries(db: Database, name: string, userId: num
   }
 }
 
+export async function deleteSeriesIfEmpty(db: Database, seriesId: number | null | undefined, userId: number): Promise<void> {
+  if (seriesId == null) return;
+  await db.run(
+    `DELETE FROM series
+     WHERE id = ?
+       AND user_id = ?
+       AND NOT EXISTS (
+         SELECT 1 FROM books WHERE series_id = ? AND user_id = ?
+       )`,
+    seriesId, userId, seriesId, userId
+  );
+}
+
 async function seriesWithBooks(db: Database, id: number, userId: number) {
   const series = await db.get(`SELECT * FROM series WHERE id = ? AND user_id = ?`, id, userId);
   if (!series) return null;
