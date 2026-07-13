@@ -84,6 +84,48 @@ export async function getDb(): Promise<Database> {
       issue_url     TEXT,
       created_at    TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS message_threads (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_one_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      user_two_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at  TEXT NOT NULL DEFAULT (datetime('now')),
+      CHECK (user_one_id < user_two_id),
+      UNIQUE(user_one_id, user_two_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      thread_id       INTEGER NOT NULL REFERENCES message_threads(id) ON DELETE CASCADE,
+      sender_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      recipient_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body            TEXT NOT NULL,
+      source_type     TEXT CHECK (source_type IS NULL OR source_type IN ('book', 'review', 'wishlist', 'text')),
+      source_book_id  INTEGER REFERENCES books(id) ON DELETE SET NULL,
+      source_note_id  INTEGER REFERENCES notes(id) ON DELETE SET NULL,
+      source_snapshot TEXT,
+      read_at         TEXT,
+      created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS message_drafts (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      sender_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      recipient_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      thread_id       INTEGER REFERENCES message_threads(id) ON DELETE CASCADE,
+      body            TEXT NOT NULL,
+      source_type     TEXT CHECK (source_type IS NULL OR source_type IN ('book', 'review', 'wishlist', 'text')),
+      source_book_id  INTEGER REFERENCES books(id) ON DELETE SET NULL,
+      source_note_id  INTEGER REFERENCES notes(id) ON DELETE SET NULL,
+      source_snapshot TEXT,
+      created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at      TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_messages_thread_created ON messages(thread_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_messages_recipient_read ON messages(recipient_id, read_at);
+    CREATE INDEX IF NOT EXISTS idx_message_drafts_sender_updated ON message_drafts(sender_id, updated_at);
   `);
 
   // 2. Run migrations for columns

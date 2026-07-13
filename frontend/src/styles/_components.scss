@@ -1285,3 +1285,237 @@
     white-space: pre-wrap;
   }
 }
+
+// Messages
+.messages-tabs {
+  width: fit-content;
+  margin-bottom: $space-5;
+}
+
+.messages-shell {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: $space-4;
+  min-height: 520px;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.thread-list,
+.conversation,
+.message-draft {
+  background: $bg-card;
+  border: var(--glass-border, 1px solid $border);
+  border-radius: $radius-lg;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow, none);
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: start;
+}
+
+.thread-item {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  width: 100%;
+  padding: $space-3 $space-4;
+  color: inherit;
+  text-align: left;
+  border-bottom: 1px solid $border;
+  transition: background $transition;
+
+  &:last-child { border-bottom: none; }
+  &:hover, &:focus-visible { background: $bg-elevated; }
+
+  &--active { background: $bg-elevated; }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-1;
+    @include truncate;
+  }
+
+  &__preview {
+    font-size: 0.78rem;
+    color: $text-3;
+    @include truncate;
+  }
+
+  &__badge {
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 $space-1;
+    background: $accent;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-4 $space-5;
+    border-bottom: 1px solid $border;
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    padding: $space-5;
+  }
+}
+
+.message-bubble {
+  max-width: min(680px, 82%);
+  align-self: flex-start;
+  background: $bg-elevated;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $space-3 $space-4;
+
+  &--mine {
+    align-self: flex-end;
+    border-color: var(--accent-muted-border);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    margin-bottom: $space-2;
+    font-size: 0.75rem;
+    color: $text-3;
+  }
+
+  p {
+    color: $text-2;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+.message-source,
+.message-read,
+.message-time,
+.message-compose__count {
+  font-size: 0.75rem;
+  color: $text-3;
+}
+
+.message-source {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: $space-2;
+  padding: 2px $space-2;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  background: $bg-card;
+}
+
+.message-read {
+  display: block;
+  margin-top: $space-2;
+  text-align: right;
+}
+
+.message-draft-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.message-draft {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-4;
+  padding: $space-4 $space-5;
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    min-width: 0;
+    flex: 1;
+
+    p {
+      color: $text-2;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__to,
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+  }
+
+  &__to {
+    color: $text-1;
+    font-weight: 600;
+  }
+}
+
+.message-recipient {
+  position: relative;
+
+  svg {
+    position: absolute;
+    left: $space-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-3;
+    pointer-events: none;
+  }
+
+  .form-select {
+    padding-left: $space-8 + $space-2;
+  }
+}
+
+.message-compose__body {
+  min-height: 180px;
+}
+
+.message-compose__count {
+  align-self: flex-end;
+}

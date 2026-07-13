@@ -9,6 +9,7 @@ import seriesRouter from './routes/series';
 import authRouter from './routes/auth';
 import usersRouter from './routes/users';
 import feedbackRouter from './routes/feedback';
+import messagesRouter from './routes/messages';
 import { getDb } from './database';
 import { requireAuth } from './middleware/auth';
 
@@ -40,6 +41,7 @@ app.use('/api/books', requireAuth, booksRouter);
 app.use('/api/notes', requireAuth, notesRouter);
 app.use('/api/series', requireAuth, seriesRouter);
 app.use('/api/feedback', requireAuth, feedbackRouter);
+app.use('/api/messages', requireAuth, messagesRouter);
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 if (IS_PROD) {

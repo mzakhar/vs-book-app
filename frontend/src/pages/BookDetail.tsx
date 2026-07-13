@@ -1,12 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen, List } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen, List, Send } from 'lucide-react';
 import { getBook, getNotes, deleteBook, deleteNote, getSeriesById } from '../api';
 import { Book, Note, Series, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
 import NoteForm from '../components/NoteForm';
+import ComposeMessageModal from '../components/ComposeMessageModal';
 import { useToast } from '../components/Toast';
+import type { MessageSourceType } from '../types';
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -35,6 +37,13 @@ const STATUS_LABEL: Record<BookStatus, string> = {
   unread: 'Unread', reading: 'Reading', read: 'Read', wishlist: 'Wishlist',
 };
 
+type ComposeShare = {
+  body: string;
+  sourceType: MessageSourceType;
+  sourceBookId?: number | null;
+  sourceNoteId?: number | null;
+};
+
 export default function BookDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -47,6 +56,7 @@ export default function BookDetail() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<'edit' | 'add-note' | 'edit-note' | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [composeShare, setComposeShare] = useState<ComposeShare | null>(null);
 
   const loadAll = useCallback(async () => {
     try {
@@ -95,6 +105,26 @@ export default function BookDetail() {
 
   const closeModal = () => { setModal(null); setEditingNote(null); };
 
+  const buildBookShare = (): ComposeShare | null => {
+    if (!book) return null;
+    const lines = [
+      `I recommend "${book.title}"${book.author ? ` by ${book.author}` : ''}.`,
+      book.rating ? `My rating: ${book.rating}/5.` : '',
+      book.description ? book.description : '',
+    ].filter(Boolean);
+    return { body: lines.join('\n\n'), sourceType: 'book', sourceBookId: book.id };
+  };
+
+  const buildReviewShare = (note: Note): ComposeShare | null => {
+    if (!book) return null;
+    return {
+      body: `My thoughts on "${book.title}"${book.author ? ` by ${book.author}` : ''}:\n\n${note.content}`,
+      sourceType: 'review',
+      sourceBookId: book.id,
+      sourceNoteId: note.id,
+    };
+  };
+
   if (loading) {
     return (
       <div className="page">
@@ -141,6 +171,9 @@ export default function BookDetail() {
             <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
               <button className="btn btn--secondary btn--sm" onClick={() => setModal('edit')}>
                 <Pencil size={13} /> Edit
+              </button>
+              <button className="btn btn--secondary btn--sm" onClick={() => setComposeShare(buildBookShare())}>
+                <Send size={13} /> Send
               </button>
               <button className="btn btn--danger btn--sm" onClick={handleDeleteBook}>
                 <Trash2 size={13} />
@@ -222,6 +255,13 @@ export default function BookDetail() {
                 <div className="note-card__actions">
                   <button
                     className="btn btn--icon btn--ghost"
+                    onClick={() => setComposeShare(buildReviewShare(note))}
+                    title="Send review"
+                  >
+                    <Send size={13} />
+                  </button>
+                  <button
+                    className="btn btn--icon btn--ghost"
                     onClick={() => { setEditingNote(note); setModal('edit-note'); }}
                     title="Edit note"
                   >
@@ -271,6 +311,18 @@ export default function BookDetail() {
             onCancel={closeModal}
           />
         </Modal>
+      )}
+
+      {composeShare && (
+        <ComposeMessageModal
+          initialBody={composeShare.body}
+          sourceType={composeShare.sourceType}
+          sourceBookId={composeShare.sourceBookId ?? null}
+          sourceNoteId={composeShare.sourceNoteId ?? null}
+          onClose={() => setComposeShare(null)}
+          onSent={() => setComposeShare(null)}
+          onDraftSaved={() => setComposeShare(null)}
+        />
       )}
     </div>
   );

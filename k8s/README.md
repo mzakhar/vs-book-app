@@ -13,16 +13,18 @@ This directory contains the Git-managed deployment state for `Vs-book-app`.
 
 1. Create the GHCR pull secret in the `vs-book-app` namespace.
 2. Apply `k8s/base` directly, or let Flux reconcile `k8s/flux/vs-book-app-kustomization.yaml`.
-3. Update the image tag in `base/deployment.yaml` when you want to deploy a tag or commit-specific image instead of `:main`.
+3. Update the image digest in `base/deployment.yaml` when you want to deploy a newly published image.
 
 ## Important rollout note
 
-- A new app commit does not automatically produce a new rollout on the cluster if `k8s/base/deployment.yaml` still points at the same image reference.
-- The current manifest uses `ghcr.io/mzakhar/vs-book-app:main`, which is a mutable tag.
-- Flux reconciles Git state, not GHCR tag contents, so a fresh `:main` image alone is not a guaranteed deployment event.
-- For deterministic updates on `themachine`, treat `k8s/base/deployment.yaml` as part of the release step:
-  - either update the image tag or digest in Git
-  - or perform an explicit rollout restart on the cluster if you intentionally keep using `:main`
+- A new app commit does not automatically produce a new rollout on the cluster if `k8s/base/deployment.yaml` still points at the same image digest.
+- The current manifest pins `ghcr.io/mzakhar/vs-book-app` by digest for deterministic rollouts.
+- Flux reconciles Git state, not GHCR tag contents, so a fresh `:main` image alone is not a deployment event.
+- After a PR merges and the container publish workflow completes, run this from the repo root to pin and push the latest `:main` digest:
+
+  ```powershell
+  npm run deploy:pin-image -- -Commit -Push
+  ```
 
 ## Flux bootstrap
 

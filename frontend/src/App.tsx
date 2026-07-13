@@ -12,6 +12,7 @@ import Wishlist from './pages/Wishlist';
 import UsersPage from './pages/UsersPage';
 import ReadersPage from './pages/ReadersPage';
 import ProfilePage from './pages/ProfilePage';
+import MessagesPage from './pages/MessagesPage';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="wishlist" element={<Wishlist />} />
               <Route path="books/:id" element={<BookDetail />} />
               <Route path="series" element={<SeriesPage />} />
+              <Route path="messages" element={<MessagesPage />} />
               <Route path="users" element={<ReadersPage />} />
               <Route path="users/:id" element={<ProfilePage />} />
               <Route path="admin/users" element={<UsersPage />} />
