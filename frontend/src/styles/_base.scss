@@ -63,7 +63,6 @@ body {
   position: absolute;
   border-radius: 999px;
   opacity: 0.9;
-  filter: blur(14px);
 
   &--a {
     background: radial-gradient(circle at 35% 30%, var(--blob-a-light) 0%, var(--blob-a-mid) 48%, var(--blob-a-dark) 100%);
@@ -120,7 +119,6 @@ html[data-theme="glass-light"] {
 
   .glass-circle {
     opacity: 0.82;
-    filter: blur(10px);
   }
 }
 

@@ -589,7 +589,7 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 
     @media (hover: hover) {
-      .book-card__delete { opacity: 1; }
+      .book-card__favorite { opacity: 1; }
     }
   }
 
@@ -644,21 +644,26 @@
     margin-top: auto;
   }
 
-  &__delete {
+  &__favorite {
     position: absolute;
     top: $space-2;
     right: $space-2;
-    transition: opacity $transition;
+    transition: opacity $transition, color $transition;
     background: $bg-card;
     border: 1px solid $border;
-    color: $danger;
+    color: $text-3;
     backdrop-filter: var(--glass-blur);
 
     @media (hover: hover) {
       opacity: 0;
     }
 
-    &:hover, &:focus-visible { background: $danger-bg; }
+    &:hover, &:focus-visible { background: $danger-bg; color: $danger; }
+
+    &--active {
+      color: $danger;
+      opacity: 1;
+    }
   }
 }
 

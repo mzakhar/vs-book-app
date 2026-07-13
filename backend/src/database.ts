@@ -140,6 +140,7 @@ export async function getDb(): Promise<Database> {
     `ALTER TABLE users ADD COLUMN avatar_url TEXT`,
     `ALTER TABLE users ADD COLUMN favorite_genres TEXT`,
     `ALTER TABLE users ADD COLUMN favorite_book_id INTEGER REFERENCES books(id) ON DELETE SET NULL`,
+    `ALTER TABLE books ADD COLUMN is_favorite INTEGER DEFAULT 0`,
   ];
   for (const sql of migrations) {
     try { await _db.run(sql); } catch { /* column already exists */ }

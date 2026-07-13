@@ -191,6 +191,17 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   res.json(await db.get(`${SELECT_BOOK} WHERE b.id = ? AND b.user_id = ? ${GROUP_BY_BOOK}`, req.params.id, req.user!.id));
 }));
 
+router.patch('/:id/favorite', asyncHandler(async (req: Request, res: Response) => {
+  const db = await getDb();
+  const existing = await db.get(`SELECT id FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);
+  if (!existing) return res.status(404).json({ error: 'Book not found' });
+
+  const is_favorite = req.body.is_favorite ? 1 : 0;
+  await db.run(`UPDATE books SET is_favorite=? WHERE id=? AND user_id=?`, is_favorite, req.params.id, req.user!.id);
+
+  res.json(await db.get(`${SELECT_BOOK} WHERE b.id = ? AND b.user_id = ? ${GROUP_BY_BOOK}`, req.params.id, req.user!.id));
+}));
+
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const db = await getDb();
   const existing = await db.get(`SELECT id, series_id FROM books WHERE id = ? AND user_id = ?`, req.params.id, req.user!.id);

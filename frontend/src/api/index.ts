@@ -81,6 +81,8 @@ export const updateBook = (id: number, data: Partial<Book> & { series_name?: str
   api.put<Book>(`/books/${id}`, data).then(r => r.data);
 export const deleteBook = (id: number) =>
   api.delete(`/books/${id}`);
+export const toggleFavorite = (id: number, is_favorite: number) =>
+  api.patch<Book>(`/books/${id}/favorite`, { is_favorite }).then(r => r.data);
 export const getStats = () =>
   api.get<BookStats>('/books/stats').then(r => r.data);
 
