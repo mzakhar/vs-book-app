@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vs-book-app
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/mzakhar/vs-book-app@sha256:1fb0118677553019e64e96bfecfebf0d1a71e0b30c17f2c90047f9a9a69e0794
+          image: ghcr.io/mzakhar/vs-book-app@sha256:773f657b76e3e4b53b0e2f465ae035342f73e21eee7497e3be8c473271b51abb
           imagePullPolicy: IfNotPresent
           env:
             - name: NODE_ENV
@@ -40,7 +40,7 @@ spec:
                   optional: true
             - name: GITHUB_REPO
               value: mzakhar/vs-book-app
-            # In-app feedback → GitHub issues; endpoint returns 503 while unset.
+            # In-app feedback â†’ GitHub issues; endpoint returns 503 while unset.
             - name: GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
