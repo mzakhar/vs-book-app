@@ -4,6 +4,8 @@ export type FeedbackType = 'bug' | 'feature' | 'other';
 
 export type UserRole = 'admin' | 'user';
 
+export type MessageSourceType = 'book' | 'review' | 'wishlist' | 'text';
+
 export interface AuthUser {
   id: number;
   username: string;
@@ -23,6 +25,8 @@ export interface UserSummary {
   screen_name: string;
   avatar_url: string | null;
 }
+
+export interface MessageUser extends UserSummary {}
 
 export interface FavoriteBook {
   id: number;
@@ -75,6 +79,62 @@ export interface Note {
   content: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface MessageThread {
+  id: number;
+  updated_at: string;
+  other_user: MessageUser;
+  last_body: string | null;
+  last_message_at: string | null;
+  unread_count: number;
+  sent_count: number;
+  draft_count: number;
+}
+
+export interface Message {
+  id: number;
+  thread_id: number;
+  sender_id: number;
+  recipient_id: number;
+  body: string;
+  source_type: MessageSourceType | null;
+  source_book_id: number | null;
+  source_note_id: number | null;
+  source_snapshot: string | null;
+  read_at: string | null;
+  created_at: string;
+  sender?: MessageUser;
+  recipient?: MessageUser;
+}
+
+export interface MessageDraft {
+  id: number;
+  sender_id: number;
+  recipient_id: number;
+  thread_id: number | null;
+  body: string;
+  source_type: MessageSourceType | null;
+  source_book_id: number | null;
+  source_note_id: number | null;
+  source_snapshot: string | null;
+  created_at: string;
+  updated_at: string;
+  recipient?: MessageUser;
+}
+
+export interface MessageThreadDetail {
+  thread: MessageThread;
+  messages: Message[];
+  drafts: MessageDraft[];
+}
+
+export interface MessagePayload {
+  recipient_id: number;
+  body: string;
+  source_type?: MessageSourceType | null;
+  source_book_id?: number | null;
+  source_note_id?: number | null;
 }
 
 export interface SeriesBook {

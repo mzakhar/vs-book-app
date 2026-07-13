@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown, Archive } from 'lucide-react';
+import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown, Archive, Send } from 'lucide-react';
 import { getBooks, deleteBook, updateBook } from '../api';
 import { Book, BookStatus, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
+import ComposeMessageModal from '../components/ComposeMessageModal';
 import { useToast } from '../components/Toast';
 
 type SortKey = 'date' | 'title' | 'author' | 'series' | 'genre';
@@ -44,6 +45,7 @@ export default function Wishlist() {
   const [sort, setSort] = useState<SortKey>('date');
   const [view, setView] = useState<ViewMode>('list');
   const [showAdd, setShowAdd] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   const load = useCallback(async (q?: string) => {
     try {
@@ -88,6 +90,13 @@ export default function Wishlist() {
     }
   };
 
+  const wishlistMessage = () => {
+    const lines = sortBooks(books, sort).map((book, index) =>
+      `${index + 1}. ${book.title}${book.author ? ` by ${book.author}` : ''}`
+    );
+    return `My current wishlist:\n\n${lines.join('\n')}`;
+  };
+
   return (
     <div className="page">
       <div className="page-header">
@@ -108,6 +117,9 @@ export default function Wishlist() {
           </div>
           <button className="btn btn--primary" onClick={() => setShowAdd(true)}>
             <Plus size={14} /> Add to Wishlist
+          </button>
+          <button className="btn btn--secondary" onClick={() => setShowShare(true)} disabled={books.length === 0}>
+            <Send size={14} /> Send Wishlist
           </button>
         </div>
       </div>
@@ -251,6 +263,16 @@ export default function Wishlist() {
             onCancel={() => setShowAdd(false)}
           />
         </Modal>
+      )}
+
+      {showShare && (
+        <ComposeMessageModal
+          initialBody={wishlistMessage()}
+          sourceType="wishlist"
+          onClose={() => setShowShare(false)}
+          onSent={() => setShowShare(false)}
+          onDraftSaved={() => setShowShare(false)}
+        />
       )}
     </div>
   );

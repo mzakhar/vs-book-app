@@ -11,6 +11,7 @@ npm run install:all   # install all deps (backend + frontend)
 npm run dev           # start both backend (port 3000) and frontend (port 5173) concurrently
 npm run dev:backend   # backend only
 npm run dev:frontend  # frontend only
+npm run deploy:pin-image # after main image publish, pin k8s deployment to latest GHCR digest
 ```
 
 From `backend/`:
@@ -28,9 +29,21 @@ npm run build   # tsc + vite build
 
 There are no tests.
 
+## Deployment
+
+Merging to `main` triggers `.github/workflows/container-publish.yml`, which builds and pushes `ghcr.io/mzakhar/vs-book-app:main`. That image publish alone does not guarantee a cluster rollout because Flux reconciles Git state and the Kubernetes deployment is pinned by image digest.
+
+After a PR merges and the GitHub Actions container publish completes, update the deployment digest from `main` and push that manifest change:
+
+```powershell
+npm run deploy:pin-image -- -Commit -Push
+```
+
+This runs `scripts/update-deploy-image.ps1`, resolves the current GHCR digest, rewrites `k8s/base/deployment.yaml`, commits the digest pin, and pushes it. Flux reconciles `k8s/base` from Git on its normal interval.
+
 ## Architecture
 
-**Monorepo** with `backend/` and `frontend/` as independent npm workspaces; the root `package.json` only holds concurrency scripts.
+**Monorepo** with `backend/` and `frontend/` as independent npm workspaces; the root `package.json` holds orchestration scripts.
 
 ### Backend (`backend/src/`)
 

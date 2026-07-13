@@ -1,5 +1,21 @@
 import axios from 'axios';
-import type { AuthUser, Book, BookStats, FeedbackType, ManagedUser, Note, Series, UserRole, UserProfile, UserSummary } from '../types';
+import type {
+  AuthUser,
+  Book,
+  BookStats,
+  FeedbackType,
+  ManagedUser,
+  Message,
+  MessageDraft,
+  MessagePayload,
+  MessageThread,
+  MessageThreadDetail,
+  Note,
+  Series,
+  UserRole,
+  UserProfile,
+  UserSummary,
+} from '../types';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api' });
 
@@ -93,3 +109,23 @@ export const deleteSeries = (id: number) =>
 // Feedback
 export const submitFeedback = (type: FeedbackType, description: string) =>
   api.post<{ issueNumber: number; issueUrl: string }>('/feedback', { type, description }).then(r => r.data);
+
+// Messages
+export const getMessageThreads = () =>
+  api.get<MessageThread[]>('/messages/threads').then(r => r.data);
+export const getMessageThread = (id: number) =>
+  api.get<MessageThreadDetail>(`/messages/threads/${id}`).then(r => r.data);
+export const sendMessage = (data: MessagePayload) =>
+  api.post<Message>('/messages', data).then(r => r.data);
+export const getMessageDrafts = () =>
+  api.get<MessageDraft[]>('/messages/drafts').then(r => r.data);
+export const createMessageDraft = (data: MessagePayload) =>
+  api.post<MessageDraft>('/messages/drafts', data).then(r => r.data);
+export const updateMessageDraft = (id: number, data: MessagePayload) =>
+  api.put<MessageDraft>(`/messages/drafts/${id}`, data).then(r => r.data);
+export const deleteMessageDraft = (id: number) =>
+  api.delete(`/messages/drafts/${id}`);
+export const sendMessageDraft = (id: number) =>
+  api.post<Message>(`/messages/drafts/${id}/send`).then(r => r.data);
+export const markMessageRead = (id: number) =>
+  api.post<Message>(`/messages/${id}/read`).then(r => r.data);

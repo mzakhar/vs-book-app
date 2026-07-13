@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { BookOpen, Pencil, UserX } from 'lucide-react';
+import { BookOpen, MessageSquare, Pencil, UserX } from 'lucide-react';
 import { getUserProfile } from '../api';
 import type { UserProfile } from '../types';
 import { useAuth } from '../context/AuthContext';
 import ProfileEditModal from '../components/ProfileEditModal';
+import ComposeMessageModal from '../components/ComposeMessageModal';
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
 
   const load = useCallback(() => {
     if (!id) return;
@@ -63,14 +65,19 @@ export default function ProfilePage() {
             <h1>{displayName}</h1>
           </div>
         </div>
-        {isSelf && (
-          <div className="page-header__actions">
+        <div className="page-header__actions">
+          {isSelf ? (
             <button className="btn btn--secondary" onClick={() => setShowEdit(true)}>
               <Pencil size={14} />
               Edit profile
             </button>
-          </div>
-        )}
+          ) : (
+            <button className="btn btn--primary" onClick={() => setShowMessage(true)}>
+              <MessageSquare size={14} />
+              Message
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="form-group">
@@ -111,6 +118,14 @@ export default function ProfilePage() {
         <ProfileEditModal
           onClose={() => setShowEdit(false)}
           onSaved={() => { setShowEdit(false); load(); }}
+        />
+      )}
+      {showMessage && (
+        <ComposeMessageModal
+          initialRecipientId={profile.id}
+          onClose={() => setShowMessage(false)}
+          onSent={() => setShowMessage(false)}
+          onDraftSaved={() => setShowMessage(false)}
         />
       )}
     </div>

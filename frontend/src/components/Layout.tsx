@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfile } from '../api';
 import type { UserProfile } from '../types';
@@ -223,6 +223,13 @@ export default function Layout() {
           >
             <BookMarked />
             Series
+          </NavLink>
+          <NavLink
+            to="/messages"
+            className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+          >
+            <MessageSquare />
+            Messages
           </NavLink>
           <NavLink
             to="/users"
