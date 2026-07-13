@@ -1,5 +1,7 @@
 @use 'variables' as *;
 
+$sidebar-collapsed-width: 68px;
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -39,6 +41,24 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: $text-1;
+    flex: 1;
+  }
+}
+
+.sidebar__collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+  color: $text-3;
+  transition: color $transition, background $transition;
+
+  &:hover, &:focus-visible {
+    color: $text-1;
+    background: $bg-elevated;
   }
 }
 
@@ -186,6 +206,59 @@
   overflow-x: hidden;
 }
 
+// ── Collapsed sidebar (icons-only rail) ─────────────────────────────────────
+.sidebar--collapsed {
+  width: $sidebar-collapsed-width;
+
+  .sidebar__brand {
+    justify-content: center;
+    padding: $space-6 $space-2;
+  }
+
+  .sidebar__brand-title {
+    display: none;
+  }
+
+  .sidebar__nav {
+    padding: $space-4 $space-2;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: $space-2 + 2px;
+
+    &__label {
+      display: none;
+    }
+  }
+
+  .sidebar__account {
+    padding: $space-3 $space-2;
+  }
+
+  .account-menu__trigger {
+    justify-content: center;
+  }
+
+  .sidebar__account-username,
+  .account-menu__trigger > svg:last-child {
+    display: none;
+  }
+
+  .sidebar__theme {
+    padding: $space-3 $space-2 $space-5;
+
+    .form-group > div:first-child,
+    .form-select {
+      display: none;
+    }
+  }
+}
+
+.layout--sidebar-collapsed .main-content {
+  margin-left: $sidebar-collapsed-width;
+}
+
 // ── Small screens: sidebar becomes a horizontal top bar ────────────────────
 @media (max-width: 768px) {
   .sidebar {
@@ -214,7 +287,12 @@
     flex-shrink: 0;
   }
 
-  .main-content {
+  .sidebar--collapsed {
+    width: 100%;
+  }
+
+  .main-content,
+  .layout--sidebar-collapsed .main-content {
     margin-left: 0;
   }
 }

@@ -14,7 +14,7 @@ import { getDb } from './database';
 import { requireAuth } from './middleware/auth';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../books.db');
 
@@ -57,7 +57,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 getDb().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '127.0.0.1', () => {
     console.log(`Books API running on http://localhost:${PORT} using DB ${DB_PATH}`);
   });
 }).catch(err => {

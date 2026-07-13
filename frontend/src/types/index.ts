@@ -59,6 +59,7 @@ export interface Book {
   series_name?: string | null;
   page_count?: number | null;
   description?: string | null;
+  is_favorite?: number;
 }
 
 export interface BookStats {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Trash2, BookOpen, Star, ArrowUpDown } from 'lucide-react';
-import { getBooks, deleteBook } from '../api';
+import { Search, Plus, BookOpen, Star, ArrowUpDown, Heart } from 'lucide-react';
+import { getBooks, toggleFavorite } from '../api';
 import { Book, BookStatus, parseGenres } from '../types';
 import Modal from '../components/Modal';
 import BookForm from '../components/BookForm';
@@ -74,16 +74,14 @@ export default function BookList() {
     return () => clearTimeout(t);
   }, [search, load]);
 
-  const handleDelete = async (e: React.MouseEvent, book: Book) => {
+  const handleToggleFavorite = async (e: React.MouseEvent, book: Book) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm(`Delete "${book.title}"? This cannot be undone.`)) return;
     try {
-      await deleteBook(book.id);
-      setBooks(bs => bs.filter(b => b.id !== book.id));
-      toast('success', 'Book deleted.');
+      const updated = await toggleFavorite(book.id, book.is_favorite ? 0 : 1);
+      setBooks(bs => bs.map(b => b.id === book.id ? updated : b));
     } catch {
-      toast('error', 'Failed to delete book.');
+      toast('error', 'Failed to update favorite.');
     }
   };
 
@@ -171,6 +169,13 @@ export default function BookList() {
                     <span>{book.title}</span>
                   </div>
                 )}
+                <button
+                  className={`book-gallery__favorite btn btn--icon btn--ghost${book.is_favorite ? ' book-gallery__favorite--active' : ''}`}
+                  onClick={e => handleToggleFavorite(e, book)}
+                  title={book.is_favorite ? 'Unfavorite' : 'Favorite'}
+                >
+                  <Heart size={14} fill={book.is_favorite ? 'currentColor' : 'none'} />
+                </button>
               </div>
               <div className="book-gallery__title">{book.title}</div>
             </Link>
@@ -199,11 +204,11 @@ export default function BookList() {
                 <StarRating rating={book.rating} />
               </div>
               <button
-                className="book-card__delete btn btn--icon btn--ghost"
-                onClick={e => handleDelete(e, book)}
-                title="Delete book"
+                className={`book-card__favorite btn btn--icon btn--ghost${book.is_favorite ? ' book-card__favorite--active' : ''}`}
+                onClick={e => handleToggleFavorite(e, book)}
+                title={book.is_favorite ? 'Unfavorite' : 'Favorite'}
               >
-                <Trash2 size={14} />
+                <Heart size={14} fill={book.is_favorite ? 'currentColor' : 'none'} />
               </button>
             </Link>
           ))}

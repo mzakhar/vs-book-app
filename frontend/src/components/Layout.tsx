@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil, MessageSquare } from 'lucide-react';
+import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil, MessageSquare, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfile } from '../api';
 import type { UserProfile } from '../types';
@@ -74,6 +74,7 @@ export default function Layout() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('book_app_sidebar_collapsed') === '1');
 
   const loadProfile = useCallback(() => {
     getMyProfile().then(setProfile).catch(() => setProfile(null));
@@ -102,10 +103,14 @@ export default function Layout() {
     localStorage.setItem('book_app_theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    localStorage.setItem('book_app_sidebar_collapsed', collapsed ? '1' : '0');
+  }, [collapsed]);
+
   const displayName = profile?.screen_name || user?.username || '';
 
   return (
-    <div className="layout">
+    <div className={`layout${collapsed ? ' layout--sidebar-collapsed' : ''}`}>
       {isGlassTheme && (
         <div className="glass-scene" aria-hidden="true">
           <div className="glass-bg" />
@@ -122,9 +127,7 @@ export default function Layout() {
                     0 0 1 0 0
                     0 0 0 22 -9
                   "
-                  result="goo"
                 />
-                <feBlend in="SourceGraphic" in2="goo" />
               </filter>
             </defs>
           </svg>
@@ -174,7 +177,7 @@ export default function Layout() {
           ))}
         </div>
       )}
-      <aside className="sidebar">
+      <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
         <div className="sidebar__brand">
           <span className="sidebar__brand-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 141" width="32" height="32">
@@ -193,6 +196,15 @@ export default function Layout() {
             </svg>
           </span>
           <span className="sidebar__brand-title">V&apos;s Books</span>
+          <button
+            type="button"
+            className="sidebar__collapse-btn"
+            onClick={() => setCollapsed(c => !c)}
+            title={collapsed ? 'Expand' : 'Collapse'}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+          </button>
         </div>
         <nav className="sidebar__nav">
           <NavLink
@@ -201,42 +213,42 @@ export default function Layout() {
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <LayoutDashboard />
-            Dashboard
+            <span className="nav-item__label">Dashboard</span>
           </NavLink>
           <NavLink
             to="/library"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <BookOpen />
-            My Library
+            <span className="nav-item__label">My Library</span>
           </NavLink>
           <NavLink
             to="/wishlist"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <Star />
-            Wishlist
+            <span className="nav-item__label">Wishlist</span>
           </NavLink>
           <NavLink
             to="/series"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <BookMarked />
-            Series
+            <span className="nav-item__label">Series</span>
           </NavLink>
           <NavLink
             to="/messages"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <MessageSquare />
-            Messages
+            <span className="nav-item__label">Messages</span>
           </NavLink>
           <NavLink
             to="/users"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
           >
             <UserCircle2 />
-            Readers
+            <span className="nav-item__label">Readers</span>
           </NavLink>
           {user?.role === 'admin' && (
             <NavLink
@@ -244,7 +256,7 @@ export default function Layout() {
               className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
             >
               <Users />
-              Users
+              <span className="nav-item__label">Users</span>
             </NavLink>
           )}
         </nav>
