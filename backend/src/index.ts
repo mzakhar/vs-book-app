@@ -16,6 +16,7 @@ import { requireAuth } from './middleware/auth';
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
+const HOST = process.env.HOST || (IS_PROD ? '0.0.0.0' : '127.0.0.1');
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../books.db');
 
 // Two trusted hops in production: Cloudflare edge -> Traefik ingress. A blanket
@@ -57,8 +58,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 getDb().then(() => {
-  app.listen(PORT, '127.0.0.1', () => {
-    console.log(`Books API running on http://localhost:${PORT} using DB ${DB_PATH}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Books API running on http://${HOST}:${PORT} using DB ${DB_PATH}`);
   });
 }).catch(err => {
   console.error('Failed to initialise database:', err);
