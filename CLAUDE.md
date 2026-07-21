@@ -122,3 +122,18 @@ Three CSS themes (`dark`, `light`, `purple`) defined as CSS custom properties in
 - `notes(id, book_id, content, created_at, updated_at)` — cascades delete from books
 
 WAL mode and foreign keys are enabled on every connection.
+
+## OpenTelemetry
+
+Service name: `vs-book-app` (via `VS_BOOK_APP_SERVICE_NAME`).
+
+Local OTel env vars: `.env.otel` -> OTLP HTTP collector at `localhost:4318`.
+Production env vars live in `k8s/base/deployment.yaml` and point to the
+in-cluster collector. Telemetry stays off unless `VS_BOOK_APP_SERVICE_NAME` or
+`OTEL_SERVICE_NAME` is set.
+
+`backend/src/otel-init.ts` uses the project-specific service name, an always-on
+sampler, and temporarily removes ambient `OTEL_SDK_DISABLED`,
+`OTEL_SERVICE_NAME`, and `OTEL_TRACES_SAMPLER` values during SDK startup. This
+prevents agent runtime telemetry settings from changing app identity or
+silently disabling telemetry.
