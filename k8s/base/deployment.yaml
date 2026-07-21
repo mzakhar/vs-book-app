@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/mzakhar/vs-book-app@sha256:52c4718533cb20d6b8ebd554f504c30c29fc589945732d91b9da7181dc3eabed
+          image: ghcr.io/mzakhar/vs-book-app@sha256:8abfd888d8e9c4cace95efaae940878c098cb43c1d9357efc716584059d1074f
           imagePullPolicy: IfNotPresent
           env:
             - name: NODE_ENV
