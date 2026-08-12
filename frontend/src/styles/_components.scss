@@ -92,7 +92,7 @@
   option { background: $bg-elevated; }
 
   // 16px kills iOS Safari's auto-zoom-on-focus behavior
-  @media (max-width: 768px) {
+  @media (max-width: $bp-md) {
     font-size: 16px;
   }
 }
@@ -193,8 +193,12 @@
     &::placeholder { color: $text-4; }
     &:focus { outline: none; border-color: $border-light; }
 
-    @media (max-width: 768px) {
+    @media (max-width: $bp-md) {
       font-size: 16px;
+    }
+
+    @media (max-width: $bp-sm) {
+      max-width: none;
     }
   }
 }
@@ -229,6 +233,18 @@
   &--sm { max-width: 420px; }
   &--md { max-width: 560px; }
   &--lg { max-width: 720px; }
+
+  @media (max-width: $bp-md) {
+    &--sm, &--md, &--lg {
+      width: 100%;
+      max-width: none;
+    }
+    // iOS Safari counts the URL bar inside 100vh, so a 100vh-tall modal puts its
+    // submit button under the browser chrome where it cannot be tapped. dvh tracks
+    // the actually-visible viewport; the vh line stays as the pre-15.4 fallback.
+    max-height: calc(100vh - #{$space-6 * 2});
+    max-height: calc(100dvh - #{$space-6 * 2});
+  }
 
   &__header {
     display: flex;
@@ -319,6 +335,12 @@
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+
+  @media (max-width: $bp-sm) {
+    left: $space-3;
+    right: $space-3;
+    bottom: $space-3;
+  }
 }
 
 .toast {
@@ -334,6 +356,12 @@
   border: 1px solid;
   animation: slideInRight 200ms ease;
   backdrop-filter: var(--glass-blur);
+
+  @media (max-width: $bp-sm) {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
 
   &--success { background: var(--toast-success-bg); border-color: var(--toast-success-border); color: $success; }
   &--error   { background: var(--toast-error-bg);   border-color: var(--toast-error-border);   color: $danger; }
@@ -485,7 +513,7 @@
   gap: $space-4;
   max-width: 100%;
 
-  @media (max-width: 480px) {
+  @media (max-width: $bp-sm) {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 
@@ -592,7 +620,7 @@
   gap: $space-4;
   max-width: 100%;
 
-  @media (max-width: 480px) {
+  @media (max-width: $bp-sm) {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
@@ -693,6 +721,28 @@
       opacity: 1;
     }
   }
+
+  &__actions {
+    display: flex;
+    gap: $space-1;
+  }
+}
+
+// ── Section Header (heading + action button row) ──────────────────────────
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $space-6;
+
+  &--tight {
+    margin-bottom: $space-4;
+  }
+
+  @media (max-width: $bp-sm) {
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
 }
 
 // ── Dashboard Stats ───────────────────────────────────────────────────────
@@ -747,7 +797,7 @@
   gap: $space-4;
   margin-bottom: $space-6;
 
-  @media (max-width: 640px) { grid-template-columns: 1fr; }
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
 }
 
 .chart-card {
@@ -925,6 +975,29 @@
     gap: $space-2;
     justify-content: flex-end;
   }
+
+  // Five grid columns (1.5fr 0.8fr 0.9fr 1fr auto) crush at phone widths.
+  // Stack instead: username on its own line, role/status/date wrap together,
+  // actions get their own full-width line.
+  @media (max-width: $bp-md) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: $space-2;
+
+    &--head { display: none; }
+
+    &__username {
+      flex: 1 0 100%;
+    }
+
+    &__actions {
+      flex: 1 0 100%;
+      justify-content: flex-start;
+      margin-top: $space-1;
+    }
+  }
 }
 
 // ── Cover Picker ──────────────────────────────────────────────────────────
@@ -992,6 +1065,41 @@
   &__url {
     font-size: 0.8125rem;
   }
+}
+
+// ── Book Detail Header ─────────────────────────────────────────────────────
+.book-detail__header {
+  display: flex;
+  gap: $space-5;
+  margin-bottom: $space-6;
+  align-items: flex-start;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+  }
+}
+
+.book-detail__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-detail__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $space-4;
+  margin-bottom: $space-2;
+
+  @media (max-width: $bp-sm) {
+    flex-wrap: wrap;
+  }
+}
+
+.book-detail__actions {
+  display: flex;
+  gap: $space-2;
+  flex-shrink: 0;
 }
 
 // ── Book Detail Cover ─────────────────────────────────────────────────────
@@ -1167,7 +1275,7 @@
     border-radius: 3px;
     overflow: hidden;
 
-    @media (max-width: 480px) { display: none; }
+    @media (max-width: $bp-sm) { display: none; }
   }
 
   &__bar-fill {
@@ -1331,7 +1439,7 @@
   gap: $space-4;
   min-height: 520px;
 
-  @media (max-width: 760px) {
+  @media (max-width: $bp-md) {
     grid-template-columns: 1fr;
   }
 }
@@ -1618,6 +1726,11 @@
     transition: background $transition;
 
     &:hover, &:focus-visible { background: var(--danger); }
+
+    @media (pointer: coarse) {
+      width: 44px;
+      height: 44px;
+    }
   }
 
   &__error {
@@ -1762,7 +1875,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: $bp-md) {
   .scan-row {
     &__actions { width: 100%; justify-content: space-between; }
   }

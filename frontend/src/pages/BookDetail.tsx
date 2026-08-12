@@ -152,7 +152,7 @@ export default function BookDetail() {
       </Link>
 
       {/* Book header */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '24px', alignItems: 'flex-start' }}>
+      <div className="book-detail__header">
         {book.cover_url && (
           <img
             src={book.cover_url}
@@ -160,15 +160,15 @@ export default function BookDetail() {
             className="book-detail__cover"
           />
         )}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '8px' }}>
+        <div className="book-detail__info">
+          <div className="book-detail__title-row">
             <div>
               <h1>{book.title}</h1>
               {book.author && (
                 <p style={{ fontSize: '1rem', color: 'var(--text-2)', marginBottom: '8px' }}>{book.author}</p>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <div className="book-detail__actions">
               <button className="btn btn--secondary btn--sm" onClick={() => setModal('edit')}>
                 <Pencil size={13} /> Edit
               </button>
@@ -228,7 +228,7 @@ export default function BookDetail() {
       )}
 
       {/* Notes section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div className="section-header section-header--tight">
         <h2 style={{ fontSize: '1rem' }}>Notes ({notes.length})</h2>
         <button className="btn btn--primary btn--sm" onClick={() => setModal('add-note')}>
           <Plus size={13} /> Add Note
