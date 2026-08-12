@@ -267,10 +267,20 @@ $sidebar-collapsed-width: 68px;
 
 // ── Small screens: sidebar becomes a horizontal top bar ────────────────────
 @media (max-width: $bp-md) {
+  // `.layout` is `display: flex` with the default row direction. Taking the sidebar
+  // out of `position: fixed` below drops it back into that row as a flex item, so it
+  // lands BESIDE the content as a full-height band instead of above it — and the
+  // row-direction nav then spills sideways out of that band. Switching the axis is
+  // what actually makes the sidebar a top bar.
+  .layout {
+    flex-direction: column;
+  }
+
   .sidebar {
     position: static;
     width: 100%;
     height: auto;
+    flex-shrink: 0;
   }
 
   .sidebar__brand {
@@ -300,6 +310,9 @@ $sidebar-collapsed-width: 68px;
   .main-content,
   .layout--sidebar-collapsed .main-content {
     margin-left: 0;
+    // Stacked under the sidebar now, so a 100vh floor would push every page
+    // ~200px past the fold and leave a dead scroll region on all of them.
+    min-height: 0;
   }
 }
 
@@ -307,6 +320,11 @@ $sidebar-collapsed-width: 68px;
 .page {
   padding: $space-8;
   max-width: 1100px;
+
+  // 32px of padding on each side eats 64px of a 390px screen.
+  @media (max-width: $bp-md) {
+    padding: $space-4;
+  }
 }
 
 .page-header {
