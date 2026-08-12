@@ -49,6 +49,10 @@ $transition-slow: 250ms ease;
 // ── Sidebar ────────────────────────────────────────────────────────────────
 $sidebar-width: 200px;
 
+// ── Breakpoints ────────────────────────────────────────────────────────────
+$bp-sm: 480px; // small phone
+$bp-md: 768px; // phone landscape / small tablet; sidebar goes horizontal
+
 // ── Mixins ─────────────────────────────────────────────────────────────────
 @mixin flex-center {
   display: flex;

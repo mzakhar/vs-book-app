@@ -60,6 +60,12 @@ $sidebar-collapsed-width: 68px;
     color: $text-1;
     background: $bg-elevated;
   }
+
+  // iOS minimum touch target is 44px; the 28px visual size is fine for a mouse
+  @media (pointer: coarse) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .sidebar__nav {
@@ -260,7 +266,7 @@ $sidebar-collapsed-width: 68px;
 }
 
 // ── Small screens: sidebar becomes a horizontal top bar ────────────────────
-@media (max-width: 768px) {
+@media (max-width: $bp-md) {
   .sidebar {
     position: static;
     width: 100%;
@@ -339,6 +345,10 @@ $sidebar-collapsed-width: 68px;
   backdrop-filter: var(--glass-blur);
   box-shadow: var(--glass-shadow, none);
   padding: $space-8 $space-6 $space-6;
+
+  @media (max-width: $bp-sm) {
+    max-width: none;
+  }
 
   &__brand {
     display: flex;

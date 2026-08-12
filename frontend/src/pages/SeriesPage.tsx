@@ -37,7 +37,7 @@ export default function SeriesPage() {
 
   return (
     <div className="page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="section-header">
         <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Series</h1>
       </div>
 

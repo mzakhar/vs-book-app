@@ -29,7 +29,7 @@
   gap: $space-4;
   max-width: 100%;
 
-  @media (max-width: 480px) {
+  @media (max-width: $bp-sm) {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 }

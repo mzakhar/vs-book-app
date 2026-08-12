@@ -228,7 +228,7 @@ export default function Wishlist() {
                   ))}
                 </div>
               </div>
-              <div className="book-card__actions" style={{ display: 'flex', gap: '4px' }}>
+              <div className="book-card__actions">
                 <button
                   className="btn btn--icon btn--ghost"
                   onClick={e => handleMoveToLibrary(e, book)}
