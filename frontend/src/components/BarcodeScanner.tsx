@@ -126,13 +126,10 @@ export default function BarcodeScanner({ onScan, onClose }: Props) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // The <video> is only rendered once `active` is true, so videoRef is still null
+      // here — attaching the stream at this point silently does nothing and leaves a
+      // black viewfinder. The effect below attaches it after the element mounts.
       setActive(true);
-      const { readBarcodes } = await loadZxing();
-      rafRef.current = requestAnimationFrame(() => decodeLoop(readBarcodes));
     } catch (err: any) {
       stop();
       if (err?.name === 'NotAllowedError') setError('denied');
@@ -142,6 +139,32 @@ export default function BarcodeScanner({ onScan, onClose }: Props) {
       startingRef.current = false;
     }
   };
+
+  // Runs after `active` flips true and the <video> has mounted, which is the earliest
+  // point videoRef is non-null. Starting the decode loop here too means it never spins
+  // against a video that has no stream.
+  useEffect(() => {
+    if (!active) return;
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!video || !stream) return;
+
+    let cancelled = false;
+    video.srcObject = stream;
+
+    (async () => {
+      try {
+        await video.play();
+        const { readBarcodes } = await loadZxing();
+        if (cancelled) return;
+        rafRef.current = requestAnimationFrame(() => decodeLoop(readBarcodes));
+      } catch {
+        if (!cancelled) setError('other');
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [active]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,7 +184,7 @@ export default function BarcodeScanner({ onScan, onClose }: Props) {
       <div className="barcode-scanner__viewfinder">
         {active ? (
           <>
-            <video ref={videoRef} playsInline muted className="barcode-scanner__video" />
+            <video ref={videoRef} playsInline muted autoPlay className="barcode-scanner__video" />
             <div className={`barcode-scanner__flash${flash ? ' barcode-scanner__flash--active' : ''}`} />
             <div className="barcode-scanner__frame" />
           </>
