@@ -60,6 +60,7 @@ export interface Book {
   page_count?: number | null;
   description?: string | null;
   is_favorite?: number;
+  isbn?: string | null;
 }
 
 export interface BookStats {
