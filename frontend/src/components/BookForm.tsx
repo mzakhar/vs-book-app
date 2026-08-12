@@ -33,11 +33,13 @@ function compressImage(file: File): Promise<string> {
 
 interface Props {
   existing?: Book;
+  /** Seeds the isbn field when a scan resolved no metadata and the user fills the book in by hand. */
+  initialIsbn?: string;
   onSave: (book: Book) => void;
   onCancel: () => void;
 }
 
-export default function BookForm({ existing, onSave, onCancel }: Props) {
+export default function BookForm({ existing, initialIsbn, onSave, onCancel }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -51,6 +53,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
     series_position: existing?.series_position != null ? String(existing.series_position) : '',
     page_count:      existing?.page_count      != null ? String(existing.page_count) : '',
     description:     existing?.description     ?? '',
+    isbn:            existing?.isbn            ?? initialIsbn ?? '',
   });
 
   // OL search state
@@ -150,6 +153,7 @@ export default function BookForm({ existing, onSave, onCancel }: Props) {
         series_position: form.series_position !== '' ? Number(form.series_position) : undefined,
         page_count:      form.page_count !== '' ? Number(form.page_count) : undefined,
         description:     form.description.trim() || undefined,
+        isbn:            form.isbn.trim() || undefined,
       };
       const book = existing?.id != null
         ? await updateBook(existing.id, payload)

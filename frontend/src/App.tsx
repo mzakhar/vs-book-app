@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import BookList from './pages/BookList';
+import ScanPage from './pages/ScanPage';
 import BookDetail from './pages/BookDetail';
 import SeriesPage from './pages/SeriesPage';
 import Wishlist from './pages/Wishlist';
@@ -40,6 +41,7 @@ export default function App() {
             >
               <Route index element={<Dashboard />} />
               <Route path="library" element={<BookList />} />
+              <Route path="scan" element={<ScanPage />} />
               <Route path="wishlist" element={<Wishlist />} />
               <Route path="books/:id" element={<BookDetail />} />
               <Route path="series" element={<SeriesPage />} />

@@ -181,3 +181,55 @@ export function normalizeAutoFill(result: OLSearchResult, workDetails?: any, edi
 
   return { title, author, cover_url, page_count, description, series_name, series_position, genre };
 }
+
+// Edition-based lookup: /isbn/{isbn}.json returns an edition (not a work), so this is a thin
+// adapter into the existing work-based pipeline. Edition-specific fields (pages, cover, title)
+// override the work-level medians afterward — the scanned copy is the physical book in hand.
+export async function lookupByIsbn(isbn: string): Promise<OLAutoFill | null> {
+  try {
+    const res = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+    if (!res.ok) return null;
+    const edition = await res.json();
+
+    const workKey: string | undefined = edition.works?.[0]?.key;
+
+    const result: OLSearchResult = {
+      key: workKey ?? '',
+      title: edition.title ?? '',
+    };
+
+    let workDetails: any = null;
+    let editions: any[] = [];
+    if (workKey) {
+      [workDetails, editions] = await Promise.all([
+        fetchWorkDetails(workKey),
+        fetchEditions(workKey)
+      ]);
+    }
+
+    const filled = normalizeAutoFill(result, workDetails, editions);
+
+    if (edition.number_of_pages) filled.page_count = String(edition.number_of_pages);
+    const editionCover = edition.covers?.find((c: number) => c > 0);
+    if (editionCover) filled.cover_url = getCoverUrl(editionCover);
+    if (edition.title) filled.title = edition.title;
+
+    // Editions rarely carry `authors` directly (see handoff) — fall back to the work's author.
+    const authorKey = edition.authors?.[0]?.key ?? workDetails?.authors?.[0]?.author?.key;
+    if (!filled.author && authorKey) {
+      try {
+        const authorRes = await fetch(`https://openlibrary.org${authorKey}.json`);
+        if (authorRes.ok) {
+          const authorData = await authorRes.json();
+          if (authorData.name) filled.author = authorData.name;
+        }
+      } catch {
+        // best effort
+      }
+    }
+
+    return filled;
+  } catch {
+    return null;
+  }
+}

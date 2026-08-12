@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil, MessageSquare, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { BookOpen, LayoutDashboard, BookMarked, Star, Palette, Users, LogOut, UserCircle2, ChevronDown, ChevronUp, Pencil, MessageSquare, PanelLeftClose, PanelLeftOpen, ScanLine } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfile } from '../api';
 import type { UserProfile } from '../types';
@@ -222,6 +222,23 @@ export default function Layout() {
             <BookOpen />
             <span className="nav-item__label">My Library</span>
           </NavLink>
+          {window.isSecureContext ? (
+            <NavLink
+              to="/scan"
+              className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}
+            >
+              <ScanLine />
+              <span className="nav-item__label">Scan</span>
+            </NavLink>
+          ) : (
+            <span
+              className="nav-item nav-item--disabled"
+              title="Camera scanning needs HTTPS — use https://books.zakharhome.org/books/ instead of the LAN address."
+            >
+              <ScanLine />
+              <span className="nav-item__label">Scan</span>
+            </span>
+          )}
           <NavLink
             to="/wishlist"
             className={({ isActive }) => `nav-item${isActive ? ' nav-item--active' : ''}`}

@@ -108,6 +108,7 @@ React Router v6 nested layout — `Layout` wraps all routes via `<Outlet />`:
 |---|---|
 | `/` | Dashboard |
 | `/library` | BookList |
+| `/scan` | ScanPage (barcode add; HTTPS only) |
 | `/books/:id` | BookDetail |
 | `/series` | SeriesPage |
 
@@ -118,10 +119,31 @@ Three CSS themes (`dark`, `light`, `purple`) defined as CSS custom properties in
 ### Database schema
 
 - `series(id, name, total_books, created_at)`
-- `books(id, title, author, genre, status, rating, cover_url, created_at, series_id, series_position, page_count, description)` — `status` is constrained to `'unread' | 'reading' | 'read'`
+- `books(id, title, author, genre, status, rating, cover_url, created_at, series_id, series_position, page_count, description, isbn)` — `status` is constrained to `'unread' | 'reading' | 'read'`; `isbn` is a normalized 13-digit string set by barcode scanning
 - `notes(id, book_id, content, created_at, updated_at)` — cascades delete from books
 
 WAL mode and foreign keys are enabled on every connection.
+
+## Barcode scanning
+
+`/scan` (`pages/ScanPage.tsx`) adds books by camera. Bulk flow: the scanner stays open,
+each accepted barcode appends a queue row, you review and batch-save.
+
+- **Camera requires a secure context.** `http://192.168.1.3/books/` can never get camera
+  access — only `https://books.zakharhome.org/books/` works. The nav entry disables itself
+  when `!window.isSecureContext`.
+- iOS Safari has no `BarcodeDetector`, so decoding uses `zxing-wasm` (reader-only build,
+  dynamically imported). The `.wasm` is self-hosted, not CDN-loaded: `?url` import plus a
+  `locateFile` override resolves it to `/books/assets/zxing_reader-*.wasm` under the
+  `base: '/books/'` config. Changing `base` or the import style breaks it in production
+  while leaving dev working.
+- `lib/isbn.ts` is the pure core (EAN-13 checksum, 978/979 gate, ISBN-10→13). The prefix
+  gate is what rejects the UPC-5 price barcode printed beside the ISBN on most books —
+  without it, scans resolve to garbage. Self-check: `npx tsx frontend/src/lib/isbn.check.ts`.
+- Lookup is Open Library first (`lookupByIsbn` reuses the existing work-based pipeline),
+  Google Books on a miss (`api/googleBooks.ts`, no series data).
+- Duplicate detection matches in memory against `getBooks()`. Books added before this
+  feature have no ISBN, so they won't be caught until rescanned.
 
 ## OpenTelemetry
 

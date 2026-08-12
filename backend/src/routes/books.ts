@@ -6,7 +6,7 @@ import { deleteSeriesIfEmpty, findOrCreateSeries } from './series';
 const router = Router();
 
 const SELECT_BOOK = `
-  SELECT b.*, s.name as series_name, GROUP_CONCAT(DISTINCT bg.genre) as genres
+  SELECT b.*, b.isbn, s.name as series_name, GROUP_CONCAT(DISTINCT bg.genre) as genres
   FROM books b
   LEFT JOIN series s ON s.id = b.series_id
   LEFT JOIN book_genres bg ON bg.book_id = b.id
@@ -46,7 +46,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const { title, author, genre, genres, status, rating, cover_url,
-          series_name, series_position, page_count, description } = req.body;
+          series_name, series_position, page_count, description, isbn } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
 
   const db = await getDb();
@@ -57,8 +57,8 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   }
 
   const result = await db.run(
-    `INSERT INTO books (title, author, status, rating, cover_url, series_id, series_position, page_count, description, user_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books (title, author, status, rating, cover_url, series_id, series_position, page_count, description, isbn, user_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     title.trim(),
     author?.trim() || null,
     status || 'unread',
@@ -68,6 +68,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     series_position != null ? Number(series_position) : null,
     page_count ? Number(page_count) : null,
     description?.trim() || null,
+    isbn?.trim() || null,
     req.user!.id
   );
 
@@ -141,7 +142,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   if (!existing) return res.status(404).json({ error: 'Book not found' });
 
   const { title, author, genre, genres, status, rating, cover_url,
-          series_name, series_position, page_count, description } = req.body;
+          series_name, series_position, page_count, description, isbn } = req.body;
 
   let series_id: number | null = existing.series_id;
   if (series_name !== undefined) {
@@ -156,7 +157,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   try {
     await db.run(
       `UPDATE books SET title=?, author=?, status=?, rating=?, cover_url=?,
-       series_id=?, series_position=?, page_count=?, description=? WHERE id=? AND user_id=?`,
+       series_id=?, series_position=?, page_count=?, description=?, isbn=? WHERE id=? AND user_id=?`,
       title !== undefined ? title.trim() || existing.title : existing.title,
       author !== undefined ? author?.trim() || null : existing.author,
       status !== undefined ? status : existing.status,
@@ -166,6 +167,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
       series_position !== undefined ? (series_position != null ? Number(series_position) : null) : existing.series_position,
       page_count !== undefined ? (page_count ? Number(page_count) : null) : existing.page_count,
       description !== undefined ? description?.trim() || null : existing.description,
+      isbn !== undefined ? isbn?.trim() || null : existing.isbn,
       req.params.id, req.user!.id
     );
 
