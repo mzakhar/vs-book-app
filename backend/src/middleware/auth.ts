@@ -6,7 +6,7 @@ import { getDb } from '../database';
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: number; username: string; role: 'admin' | 'user' };
+      user?: { id: number; username: string; email: string | null; role: 'admin' | 'user' };
     }
   }
 }
@@ -61,7 +61,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   const tokenHash = hashToken(token);
 
   const row: any = await db.get(
-    `SELECT s.token_hash, s.expires_at, u.id as user_id, u.username, u.role, u.is_active
+    `SELECT s.token_hash, s.expires_at, u.id as user_id, u.username, u.email, u.role, u.is_active
      FROM sessions s JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ?`,
     tokenHash
@@ -82,7 +82,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  req.user = { id: row.user_id, username: row.username, role: row.role };
+  req.user = { id: row.user_id, username: row.username, email: row.email ?? null, role: row.role };
 
   // Sliding renewal: extend if within 15 days of expiry
   if (expiresAt - Date.now() < RENEWAL_THRESHOLD_MS) {

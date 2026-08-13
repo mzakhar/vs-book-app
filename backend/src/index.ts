@@ -30,13 +30,15 @@ if (!IS_PROD) {
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
+// Google does the credential rate limiting now; this only caps how fast one IP
+// can burn callbacks and mint sessions.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 20,
   standardHeaders: true,
 });
 
-app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/callback', loginLimiter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', requireAuth, usersRouter);
 app.use('/api/books', requireAuth, booksRouter);

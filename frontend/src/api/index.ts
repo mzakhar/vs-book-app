@@ -43,8 +43,10 @@ api.interceptors.response.use(
 );
 
 // Auth
-export const login = (username: string, password: string) =>
-  api.post<AuthUser>('/auth/login', { username, password }).then(r => r.data);
+// Sign-in itself is a full-page redirect to /api/auth/login (see LoginPage), not
+// an XHR — the browser has to follow Google's 302 chain.
+export const devLogin = () =>
+  api.post<AuthUser>('/auth/dev-login').then(r => r.data);
 export const logout = () =>
   api.post('/auth/logout');
 export const getMe = () =>
@@ -53,9 +55,9 @@ export const getMe = () =>
 // Users (admin)
 export const getUsers = () =>
   api.get<ManagedUser[]>('/users/admin').then(r => r.data);
-export const createUser = (data: { username: string; password: string; role?: UserRole }) =>
+export const createUser = (data: { username: string; email: string; role?: UserRole }) =>
   api.post<ManagedUser>('/users', data).then(r => r.data);
-export const updateUser = (id: number, data: Partial<{ password: string; is_active: number; role: UserRole }>) =>
+export const updateUser = (id: number, data: Partial<{ email: string; is_active: number; role: UserRole }>) =>
   api.put<ManagedUser>(`/users/${id}`, data).then(r => r.data);
 export const deleteUser = (id: number) =>
   api.delete(`/users/${id}`);

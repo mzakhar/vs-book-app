@@ -55,18 +55,27 @@ gh pr create --base main --fill && gh pr merge --squash --delete-branch
 - **Host**: `themachine`, Ubuntu, LAN IP `192.168.1.3` (static). SSH: `ssh mzakhar@192.168.1.3`.
 - **Orchestration**: k3s (v1.35.x) + Flux CD (GitOps). Flux runs on `themachine`, watches the separate `mzakhar/homelab-fleet` repo (`clusters/themachine/`) for the `GitRepository` + `Kustomization` that point back at this repo's `k8s/base`. So a merged digest pin in `main` is what actually triggers a rollout — a fresh `:main` image alone does not.
 - **Routing**: Traefik serves the app on the `/books/` subpath (StripPrefix middleware). Single replica; SQLite is node-local (local-path), so the workload is effectively node-pinned and cannot scale past one writer.
-- **URLs**: LAN `http://192.168.1.3/books/`; external `https://books.zakharhome.org/books/` (Cloudflare Tunnel). Backend health: `/api/health`.
+- **URLs**: LAN `http://192.168.1.3/books/`; external `https://books.zakharhome.org/books/` (Cloudflare Tunnel). Backend health is `/api/health` *inside the pod*; through Traefik it is `/books/api/health` — `localhost/api/health` returns `404 page not found`.
+- **Namespace**: the workload lives in the `vs-book-app` namespace, not `default`. `kubectl` without `-n vs-book-app` reports `deployments.apps "vs-book-app" not found`.
 - **Verify a rollout** (from `themachine` over SSH):
 
   ```bash
-  kubectl rollout status deploy/vs-book-app        # rollout progress
-  kubectl get pods -l app=vs-book-app -o wide       # running pod + node
-  kubectl get deploy vs-book-app -o jsonpath='{.spec.template.spec.containers[0].image}'  # live pinned digest
-  flux get kustomizations -A                         # Flux reconcile state
-  curl -s localhost/api/health                       # app health through Traefik
+  kubectl -n vs-book-app rollout status deploy/vs-book-app   # rollout progress
+  kubectl -n vs-book-app get pods -l app=vs-book-app -o wide # running pod + node
+  kubectl -n vs-book-app get deploy vs-book-app -o jsonpath='{.spec.template.spec.containers[0].image}'  # live pinned digest
+  flux get kustomizations -A                                 # Flux reconcile state
+  curl -s localhost/books/api/health                         # app health through Traefik
   ```
 
   Compare the live digest against `k8s/base/deployment.yaml` on `main` to confirm Flux has caught up.
+
+  Flux reconciles on its own interval, so a freshly merged pin may not be live yet. To apply
+  it immediately rather than waiting:
+
+  ```bash
+  flux reconcile source git vs-book-app
+  flux reconcile kustomization vs-book-app
+  ```
 
 ## Handling `[Feedback]` issues
 
@@ -123,6 +132,49 @@ Three CSS themes (`dark`, `light`, `purple`) defined as CSS custom properties in
 - `notes(id, book_id, content, created_at, updated_at)` — cascades delete from books
 
 WAL mode and foreign keys are enabled on every connection.
+
+## Authentication — Google OIDC + allowlist
+
+There are no passwords. Identity comes from Google; authorization comes from a row
+in `users` with a matching `email`. An unrecognised Google account is rejected —
+nothing is created, nothing is queued for approval.
+
+- **Flow** (`backend/src/oidc.ts`, `backend/src/routes/auth.ts`): `GET /api/auth/login`
+  mints state + PKCE into a 10-minute `book_app_oidc` cookie and 302s to Google;
+  `GET /api/auth/callback` verifies state, exchanges the code, validates the
+  `id_token` claims, looks the email up in `users`, then creates the *existing*
+  session-cookie session. The `sessions` table, `requireAuth`, and the 30-day
+  sliding cookie are unchanged from the password era — only the proof of identity
+  is different.
+- **The `id_token` signature is not verified.** It arrives on our own TLS
+  connection to Google's token endpoint in response to a code we minted, which is
+  the case OIDC Core 3.1.3.7 exempts. Never extend `decodeIdToken` to tokens that
+  came from a browser.
+- **`APP_BASE_URL` drives the redirect URI** (`<APP_BASE_URL>/api/auth/callback`).
+  It must byte-match an authorized redirect URI on the Google OAuth client, so
+  changing the base path means editing the GCP client too. Secrets:
+  `k8s/base/oidc-secret.example.yaml`.
+- **GCP**: project `vs-book-app` (its own, not shared with the Gmail MCP project),
+  consent screen "V's Books", External / In production, OAuth client
+  `vs-book-app-web`. Scopes are `openid email` only — non-sensitive, so the app
+  needs no Google verification and the 100-user cap does not apply.
+- **`password_hash` is a dead column.** It stays `NOT NULL` and gets `''` because
+  dropping it means rebuilding a table six foreign keys reference. Nothing reads it.
+- **`email` is the allowlist key** with a unique index; NULLs stay distinct, so
+  pre-OIDC users simply cannot sign in until an admin sets their address on the
+  Users page. `ADMIN_EMAIL` is the bootstrap: it seeds the first admin on an empty
+  DB, or backfills the first admin's NULL email on an existing one. It never
+  overwrites an address that is already set.
+- **Local dev never talks to Google** (no public HTTPS callback). Set
+  `DEV_LOGIN_EMAIL` to an active user's address and use the "Dev sign in" button;
+  `POST /api/auth/dev-login` 404s when `NODE_ENV=production` or the var is unset.
+- **The LAN URL can no longer sign anyone in.** `http://192.168.1.3/books/` drops the
+  `secure` state cookie and then hands off to the public host, so the callback fails
+  with `?error=state`. Sign in at `https://books.zakharhome.org/books/`; the LAN
+  address still works for an already-authenticated browser.
+- Deep links are not preserved through sign-in — every successful callback lands
+  on `/books/`.
+- Self-check for the pure half: `cd backend && npx ts-node src/oidc.check.ts`.
 
 ## Barcode scanning
 

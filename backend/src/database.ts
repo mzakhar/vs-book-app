@@ -2,7 +2,6 @@ import { open, Database } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import fs from 'fs/promises';
 import path from 'path';
-import bcrypt from 'bcryptjs';
 
 let _db: Database | null = null;
 
@@ -142,10 +141,16 @@ export async function getDb(): Promise<Database> {
     `ALTER TABLE users ADD COLUMN favorite_book_id INTEGER REFERENCES books(id) ON DELETE SET NULL`,
     `ALTER TABLE books ADD COLUMN is_favorite INTEGER DEFAULT 0`,
     `ALTER TABLE books ADD COLUMN isbn TEXT`,
+    `ALTER TABLE users ADD COLUMN email TEXT`,
+    `ALTER TABLE users ADD COLUMN google_sub TEXT`,
   ];
   for (const sql of migrations) {
     try { await _db.run(sql); } catch { /* column already exists */ }
   }
+
+  // Email is the Google OIDC allowlist key. NULLs stay distinct in SQLite unique
+  // indexes, so users predating OIDC (email IS NULL) don't collide.
+  await _db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
 
   // 3. Migrate existing genre data to book_genres if book_genres is empty
   try {
@@ -206,20 +211,46 @@ export async function getDb(): Promise<Database> {
     }
   }
 
-  // 5. Seed admin user if none exist
+  // 5. Bootstrap the first admin from ADMIN_EMAIL.
+  // password_hash survives as a NOT NULL column only because dropping it means
+  // rebuilding a table six foreign keys point at. Nothing reads it any more.
+  // ponytail: dead column, drop it if users ever gets rebuilt for another reason.
+  const adminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
   const userCount: any = await _db.get('SELECT COUNT(*) as c FROM users');
   if (userCount && userCount.c === 0) {
-    const adminUsername = process.env.ADMIN_USERNAME;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    if (adminUsername && adminPassword) {
-      const hash = await bcrypt.hash(adminPassword, 12);
+    if (adminEmail) {
       await _db.run(
-        `INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')`,
-        adminUsername, hash
+        `INSERT INTO users (username, password_hash, email, role) VALUES (?, '', ?, 'admin')`,
+        adminEmail.split('@')[0], adminEmail
       );
     } else {
-      console.warn('no users exist and ADMIN_USERNAME/ADMIN_PASSWORD not set — nobody can log in');
+      console.warn('no users exist and ADMIN_EMAIL not set — nobody can log in');
     }
+  } else if (adminEmail) {
+    // Pre-OIDC database: hand the first admin an address so they can sign in and
+    // fill in everyone else's from the Users page. Never overwrites a set email.
+    await _db.run(
+      `UPDATE users SET email = ?
+       WHERE email IS NULL
+         AND id = (SELECT id FROM users WHERE role = 'admin' ORDER BY id ASC LIMIT 1)`,
+      adminEmail
+    );
+  }
+
+  // Accounts created before OIDC were often registered under the user's own email
+  // address as the username. Promote those to the allowlist so they aren't locked
+  // out. Only touches NULL emails, and only usernames that parse as an address.
+  try {
+    await _db.run(
+      `UPDATE users SET email = lower(trim(username))
+       WHERE email IS NULL
+         AND username LIKE '%_@_%._%'
+         AND username NOT LIKE '% %'`
+    );
+  } catch (e) {
+    // Unique-index collision means two accounts share an address; leave both NULL
+    // and let an admin sort it out on the Users page.
+    console.warn('username→email backfill skipped:', (e as Error).message);
   }
 
   // 6. Backfill ownership of pre-existing books/series to the first admin
