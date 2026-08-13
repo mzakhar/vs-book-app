@@ -57,6 +57,12 @@ export default function ScanPage() {
   const [manualEan, setManualEan] = useState<string | null>(null);
   // Books already owned, keyed by isbn — checked against on scan and updated after every save.
   const bookByIsbnRef = useRef<Map<string, Book>>(new Map());
+  // EANs already in the queue. This has to live outside React state: handleScan fires from
+  // the scanner's decode loop and must decide "new or repeat?" synchronously. Deciding it
+  // inside a setRows updater is unreliable — React invokes updaters eagerly only when the
+  // fiber has no pending work, so a scan arriving before the previous render committed
+  // would skip its lookup and hang on "Looking up…" forever.
+  const queuedEansRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     getBooks().then(books => {
@@ -79,24 +85,25 @@ export default function ScanPage() {
   const handleScan = (raw: string) => {
     const ean = normalizeIsbn(raw);
     if (!ean) return;
-    let added = false;
-    setRows(prev => {
-      if (prev.some(r => r.ean === ean)) return prev;
-      added = true;
-      const duplicateOf = bookByIsbnRef.current.get(ean);
-      return [...prev, {
-        ean,
-        state: 'looking-up',
-        status: 'unread',
-        include: !duplicateOf,
-        saveState: 'idle',
-        duplicateOf,
-      }];
-    });
-    if (added) resolveRow(ean);
+    if (queuedEansRef.current.has(ean)) return;
+    queuedEansRef.current.add(ean);
+
+    const duplicateOf = bookByIsbnRef.current.get(ean);
+    setRows(prev => [...prev, {
+      ean,
+      state: 'looking-up',
+      status: 'unread',
+      include: !duplicateOf,
+      saveState: 'idle',
+      duplicateOf,
+    }]);
+    resolveRow(ean);
   };
 
-  const removeRow = (ean: string) => setRows(prev => prev.filter(r => r.ean !== ean));
+  const removeRow = (ean: string) => {
+    queuedEansRef.current.delete(ean);
+    setRows(prev => prev.filter(r => r.ean !== ean));
+  };
 
   const setRowStatus = (ean: string, status: BookStatus) =>
     setRows(prev => prev.map(r => r.ean === ean ? { ...r, status } : r));
@@ -118,6 +125,7 @@ export default function ScanPage() {
       try {
         const book = await createBook(toPayload(row));
         bookByIsbnRef.current.set(row.ean, book);
+        queuedEansRef.current.delete(row.ean);
         savedCount++;
         setRows(prev => prev.filter(r => r.ean !== row.ean));
       } catch (err: any) {
