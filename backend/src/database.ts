@@ -237,6 +237,22 @@ export async function getDb(): Promise<Database> {
     );
   }
 
+  // Accounts created before OIDC were often registered under the user's own email
+  // address as the username. Promote those to the allowlist so they aren't locked
+  // out. Only touches NULL emails, and only usernames that parse as an address.
+  try {
+    await _db.run(
+      `UPDATE users SET email = lower(trim(username))
+       WHERE email IS NULL
+         AND username LIKE '%_@_%._%'
+         AND username NOT LIKE '% %'`
+    );
+  } catch (e) {
+    // Unique-index collision means two accounts share an address; leave both NULL
+    // and let an admin sort it out on the Users page.
+    console.warn('username→email backfill skipped:', (e as Error).message);
+  }
+
   // 6. Backfill ownership of pre-existing books/series to the first admin
   const admin: any = await _db.get(`SELECT id FROM users WHERE role = 'admin' ORDER BY id ASC LIMIT 1`);
   if (admin) {
