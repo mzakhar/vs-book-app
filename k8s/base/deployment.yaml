@@ -36,19 +36,32 @@ spec:
               value: http
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: deployment.environment.name=production,service.namespace=zakharhome
-            # Seeds the first admin only while the users table is empty;
-            # rotating these values later has no effect (use the in-app admin UI).
-            - name: ADMIN_USERNAME
+            # Public origin + base path. Google OIDC redirect_uri is derived from
+            # this as <APP_BASE_URL>/api/auth/callback and must match the value
+            # registered on the OAuth client exactly.
+            - name: APP_BASE_URL
+              value: https://books.zakharhome.org/books
+            # Sign-in returns 503 while these are unset.
+            - name: GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: vs-book-app-admin
-                  key: ADMIN_USERNAME
+                  name: vs-book-app-oidc
+                  key: GOOGLE_CLIENT_ID
                   optional: true
-            - name: ADMIN_PASSWORD
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vs-book-app-oidc
+                  key: GOOGLE_CLIENT_SECRET
+                  optional: true
+            # Seeds the first admin while the users table is empty, and otherwise
+            # backfills the first admin's email once (pre-OIDC databases). Never
+            # overwrites an address that is already set.
+            - name: ADMIN_EMAIL
               valueFrom:
                 secretKeyRef:
                   name: vs-book-app-admin
-                  key: ADMIN_PASSWORD
+                  key: ADMIN_EMAIL
                   optional: true
             - name: GITHUB_REPO
               value: mzakhar/vs-book-app

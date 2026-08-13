@@ -1,18 +1,19 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
-import { getMe, login as apiLogin, logout as apiLogout, registerUnauthorizedHandler, unregisterUnauthorizedHandler } from '../api';
+import { getMe, devLogin as apiDevLogin, logout as apiLogout, registerUnauthorizedHandler, unregisterUnauthorizedHandler } from '../api';
 import type { AuthUser } from '../types';
 
 interface AuthCtx {
   user: AuthUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<string | undefined>;
+  /** Dev-only bypass; the backend 404s this in production. */
+  devLogin: () => Promise<string | undefined>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthCtx>({
   user: null,
   loading: true,
-  login: async () => undefined,
+  devLogin: async () => undefined,
   logout: async () => {},
 });
 
@@ -37,14 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
+  const devLogin = useCallback(async () => {
     try {
-      const u = await apiLogin(username, password);
-      setUser(u);
+      setUser(await apiDevLogin());
       return undefined;
     } catch (err: any) {
-      if (err?.response?.status === 429) return 'Too many attempts, try later.';
-      return err?.response?.data?.error || 'Invalid username or password';
+      return err?.response?.data?.error || 'Dev login is not available.';
     }
   }, []);
 
@@ -57,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, devLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

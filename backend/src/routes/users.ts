@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
 import { Database } from 'sqlite';
 import { getDb } from '../database';
 import { asyncHandler } from '../asyncHandler';
 import { requireAdmin } from '../middleware/auth';
+import { normalizeEmail } from '../oidc';
 
 const router = Router();
 
@@ -100,29 +100,40 @@ router.get('/', asyncHandler(async (_req: Request, res: Response) => {
 router.get('/admin', requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
   const db = await getDb();
   const users = await db.all(
-    `SELECT id, username, role, is_active, created_at FROM users ORDER BY id ASC`
+    `SELECT id, username, email, role, is_active, created_at FROM users ORDER BY id ASC`
   );
   res.json(users);
 }));
 
+// Creating a user IS the allowlist entry — the address must match the Google
+// account they sign in with, exactly.
 router.post('/', requireAdmin, asyncHandler(async (req: Request, res: Response) => {
-  const { username, password, role } = req.body;
+  const { username, email, role } = req.body;
   if (!username || !username.trim()) return res.status(400).json({ error: 'Username is required' });
-  if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return res.status(400).json({ error: 'A valid email address is required' });
+
   const roleToUse = role === 'admin' ? 'admin' : 'user';
 
   const db = await getDb();
-  const existing = await db.get(`SELECT id FROM users WHERE username = ?`, username.trim());
-  if (existing) return res.status(409).json({ error: 'Username already exists' });
+  const clash = await db.get(
+    `SELECT username FROM users WHERE username = ? OR email = ?`,
+    username.trim(), normalizedEmail
+  );
+  if (clash) {
+    return res.status(409).json({
+      error: clash.username === username.trim() ? 'Username already exists' : 'Email already exists',
+    });
+  }
 
-  const hash = await bcrypt.hash(password, 12);
   const result = await db.run(
-    `INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`,
-    username.trim(), hash, roleToUse
+    `INSERT INTO users (username, password_hash, email, role) VALUES (?, '', ?, ?)`,
+    username.trim(), normalizedEmail, roleToUse
   );
 
   const user = await db.get(
-    `SELECT id, username, role, is_active, created_at FROM users WHERE id = ?`,
+    `SELECT id, username, email, role, is_active, created_at FROM users WHERE id = ?`,
     result.lastID
   );
   res.status(201).json(user);
@@ -180,7 +191,7 @@ router.put('/:id', requireAdmin, asyncHandler(async (req: Request, res: Response
   const existing = await db.get(`SELECT * FROM users WHERE id = ?`, req.params.id);
   if (!existing) return res.status(404).json({ error: 'User not found' });
 
-  const { password, is_active, role } = req.body;
+  const { email, is_active, role } = req.body;
 
   // Lockout guard: an admin cannot deactivate or demote their own account.
   const isSelf = Number(req.params.id) === req.user!.id;
@@ -188,10 +199,15 @@ router.put('/:id', requireAdmin, asyncHandler(async (req: Request, res: Response
     return res.status(400).json({ error: 'Cannot change your own active status or role' });
   }
 
-  if (password !== undefined) {
-    if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
-    const hash = await bcrypt.hash(password, 12);
-    await db.run(`UPDATE users SET password_hash = ? WHERE id = ?`, hash, req.params.id);
+  if (email !== undefined) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) return res.status(400).json({ error: 'Invalid email address' });
+    const clash = await db.get(
+      `SELECT id FROM users WHERE email = ? AND id != ?`, normalizedEmail, req.params.id
+    );
+    if (clash) return res.status(409).json({ error: 'Email already exists' });
+    await db.run(`UPDATE users SET email = ? WHERE id = ?`, normalizedEmail, req.params.id);
+    // Re-pointing the allowlist entry must not leave the old owner signed in.
     await db.run(`DELETE FROM sessions WHERE user_id = ?`, req.params.id);
   }
 
@@ -205,7 +221,7 @@ router.put('/:id', requireAdmin, asyncHandler(async (req: Request, res: Response
   }
 
   const user = await db.get(
-    `SELECT id, username, role, is_active, created_at FROM users WHERE id = ?`,
+    `SELECT id, username, email, role, is_active, created_at FROM users WHERE id = ?`,
     req.params.id
   );
   res.json(user);

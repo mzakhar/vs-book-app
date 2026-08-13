@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, FormEvent } from 'react';
-import { Plus, KeyRound, Ban, CheckCircle2, Trash2, ShieldAlert } from 'lucide-react';
+import { Plus, Mail, Ban, CheckCircle2, Trash2, ShieldAlert } from 'lucide-react';
 import { getUsers, createUser, updateUser, deleteUser } from '../api';
 import type { ManagedUser, UserRole } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -14,15 +14,15 @@ export default function UsersPage() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState<UserRole>('user');
   const [createError, setCreateError] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const [resetTarget, setResetTarget] = useState<ManagedUser | null>(null);
-  const [resetPassword, setResetPassword] = useState('');
-  const [resetError, setResetError] = useState('');
-  const [resetting, setResetting] = useState(false);
+  const [emailTarget, setEmailTarget] = useState<ManagedUser | null>(null);
+  const [emailValue, setEmailValue] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<ManagedUser | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -52,18 +52,18 @@ export default function UsersPage() {
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newUsername.trim() || newPassword.length < 8) {
-      setCreateError('Username is required and password must be at least 8 characters.');
+    if (!newUsername.trim() || !newEmail.trim()) {
+      setCreateError('Username and Google email address are both required.');
       return;
     }
     setCreating(true);
     setCreateError('');
     try {
-      const created = await createUser({ username: newUsername.trim(), password: newPassword, role: newRole });
+      const created = await createUser({ username: newUsername.trim(), email: newEmail.trim(), role: newRole });
       setUsers(u => [...u, created]);
       setShowAdd(false);
       setNewUsername('');
-      setNewPassword('');
+      setNewEmail('');
       setNewRole('user');
       toast('success', 'User created.');
     } catch (err: any) {
@@ -83,24 +83,21 @@ export default function UsersPage() {
     }
   };
 
-  const handleResetPassword = async (e: FormEvent) => {
+  const handleSaveEmail = async (e: FormEvent) => {
     e.preventDefault();
-    if (!resetTarget) return;
-    if (resetPassword.length < 8) {
-      setResetError('Password must be at least 8 characters.');
-      return;
-    }
-    setResetting(true);
-    setResetError('');
+    if (!emailTarget) return;
+    setSavingEmail(true);
+    setEmailError('');
     try {
-      await updateUser(resetTarget.id, { password: resetPassword });
-      toast('success', `Password reset for ${resetTarget.username}.`);
-      setResetTarget(null);
-      setResetPassword('');
+      const updated = await updateUser(emailTarget.id, { email: emailValue.trim() });
+      setUsers(list => list.map(x => (x.id === updated.id ? updated : x)));
+      toast('success', `Sign-in email updated for ${emailTarget.username}.`);
+      setEmailTarget(null);
+      setEmailValue('');
     } catch (err: any) {
-      setResetError(err.response?.data?.error || 'Failed to reset password.');
+      setEmailError(err.response?.data?.error || 'Failed to update email.');
     } finally {
-      setResetting(false);
+      setSavingEmail(false);
     }
   };
 
@@ -152,6 +149,7 @@ export default function UsersPage() {
         <div className="user-list">
           <div className="user-row user-row--head">
             <span>Username</span>
+            <span>Google email</span>
             <span>Role</span>
             <span>Status</span>
             <span>Created</span>
@@ -162,6 +160,7 @@ export default function UsersPage() {
             return (
               <div key={u.id} className="user-row">
                 <span className="user-row__username">{u.username}</span>
+                <span className="user-row__email">{u.email || <em>not set — cannot sign in</em>}</span>
                 <span className="tag">{u.role}</span>
                 <span className={`status-badge status-badge--${u.is_active ? 'read' : 'unread'}`}>
                   {u.is_active ? 'Active' : 'Inactive'}
@@ -170,10 +169,10 @@ export default function UsersPage() {
                 <span className="user-row__actions">
                   <button
                     className="btn btn--secondary btn--sm btn--icon"
-                    title="Reset password"
-                    onClick={() => { setResetTarget(u); setResetPassword(''); setResetError(''); }}
+                    title="Change sign-in email"
+                    onClick={() => { setEmailTarget(u); setEmailValue(u.email || ''); setEmailError(''); }}
                   >
-                    <KeyRound size={14} />
+                    <Mail size={14} />
                   </button>
                   <button
                     className="btn btn--secondary btn--sm btn--icon"
@@ -213,15 +212,17 @@ export default function UsersPage() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="new-password">Password</label>
+              <label className="form-label" htmlFor="new-email">Google email</label>
               <input
-                id="new-password"
-                type="password"
+                id="new-email"
+                type="email"
                 className="form-input"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                autoComplete="new-password"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+                autoComplete="off"
+                placeholder="reader@gmail.com"
               />
+              <p className="form-hint">Must match the Google account they sign in with.</p>
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="new-role">Role</label>
@@ -242,24 +243,25 @@ export default function UsersPage() {
         </Modal>
       )}
 
-      {resetTarget && (
-        <Modal title={`Reset password for ${resetTarget.username}`} onClose={() => setResetTarget(null)} size="sm">
-          <form onSubmit={handleResetPassword}>
-            {resetError && <p className="form-error">{resetError}</p>}
+      {emailTarget && (
+        <Modal title={`Sign-in email for ${emailTarget.username}`} onClose={() => setEmailTarget(null)} size="sm">
+          <form onSubmit={handleSaveEmail}>
+            {emailError && <p className="form-error">{emailError}</p>}
             <div className="form-group">
-              <label className="form-label" htmlFor="reset-password">New password</label>
+              <label className="form-label" htmlFor="edit-email">Google email</label>
               <input
-                id="reset-password"
-                type="password"
+                id="edit-email"
+                type="email"
                 className="form-input"
-                value={resetPassword}
-                onChange={e => setResetPassword(e.target.value)}
+                value={emailValue}
+                onChange={e => setEmailValue(e.target.value)}
                 autoFocus
-                autoComplete="new-password"
+                autoComplete="off"
               />
+              <p className="form-hint">Changing this signs them out everywhere.</p>
             </div>
-            <button type="submit" className="btn btn--primary" disabled={resetting} style={{ marginTop: 8 }}>
-              {resetting ? 'Resetting…' : 'Reset Password'}
+            <button type="submit" className="btn btn--primary" disabled={savingEmail} style={{ marginTop: 8 }}>
+              {savingEmail ? 'Saving…' : 'Save Email'}
             </button>
           </form>
         </Modal>

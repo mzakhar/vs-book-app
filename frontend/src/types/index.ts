@@ -9,12 +9,14 @@ export type MessageSourceType = 'book' | 'review' | 'wishlist' | 'text';
 export interface AuthUser {
   id: number;
   username: string;
+  email: string | null;
   role: UserRole;
 }
 
 export interface ManagedUser {
   id: number;
   username: string;
+  email: string | null;
   role: UserRole;
   is_active: number;
   created_at: string;

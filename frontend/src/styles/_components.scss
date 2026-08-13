@@ -124,6 +124,12 @@
   margin-top: $space-1;
 }
 
+.form-hint {
+  color: $text-3;
+  font-size: 0.75rem;
+  margin-top: $space-1;
+}
+
 // ── Library Controls (search + sort row) ──────────────────────────────────
 .library-controls {
   display: flex;
@@ -937,7 +943,7 @@
 
 .user-row {
   display: grid;
-  grid-template-columns: 1.5fr 0.8fr 0.9fr 1fr auto;
+  grid-template-columns: 1.2fr 1.6fr 0.7fr 0.8fr 0.9fr auto;
   align-items: center;
   gap: $space-3;
   padding: $space-3 $space-4;
@@ -965,6 +971,17 @@
     @include truncate;
   }
 
+  &__email {
+    font-size: 0.8125rem;
+    color: $text-2;
+    @include truncate;
+
+    em {
+      color: $text-3;
+      font-size: 0.75rem;
+    }
+  }
+
   &__date {
     font-size: 0.8125rem;
     color: $text-3;
@@ -976,7 +993,7 @@
     justify-content: flex-end;
   }
 
-  // Five grid columns (1.5fr 0.8fr 0.9fr 1fr auto) crush at phone widths.
+  // Six grid columns crush at phone widths.
   // Stack instead: username on its own line, role/status/date wrap together,
   // actions get their own full-width line.
   @media (max-width: $bp-md) {
@@ -989,6 +1006,10 @@
     &--head { display: none; }
 
     &__username {
+      flex: 1 0 100%;
+    }
+
+    &__email {
       flex: 1 0 100%;
     }
 
