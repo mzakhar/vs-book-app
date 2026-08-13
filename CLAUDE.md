@@ -154,6 +154,10 @@ nothing is created, nothing is queued for approval.
   It must byte-match an authorized redirect URI on the Google OAuth client, so
   changing the base path means editing the GCP client too. Secrets:
   `k8s/base/oidc-secret.example.yaml`.
+- **GCP**: project `vs-book-app` (its own, not shared with the Gmail MCP project),
+  consent screen "V's Books", External / In production, OAuth client
+  `vs-book-app-web`. Scopes are `openid email` only — non-sensitive, so the app
+  needs no Google verification and the 100-user cap does not apply.
 - **`password_hash` is a dead column.** It stays `NOT NULL` and gets `''` because
   dropping it means rebuilding a table six foreign keys reference. Nothing reads it.
 - **`email` is the allowlist key** with a unique index; NULLs stay distinct, so
